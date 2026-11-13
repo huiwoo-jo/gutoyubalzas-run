@@ -53,6 +53,7 @@ class Server(http.server.ThreadingHTTPServer):
 
 def build():
     body = env_module()
+    os.makedirs(os.path.join(ROOT, 'js'), exist_ok=True)
     open(os.path.join(ROOT, 'js', 'env.js'), 'wb').write(body)
     missing = [k for k in PUBLIC_ENV if f'{k} = ""' in body.decode()]
     print('js/env.js 생성' + (f' (비어 있음: {", ".join(missing)} → 광고판 없이 동작)' if missing else ''))
