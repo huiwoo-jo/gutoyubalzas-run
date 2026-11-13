@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>천진우와 구토유발자들 RUN</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <canvas id="game" width="1280" height="720"></canvas>
+  <div id="bgmCard" aria-label="브금 플레이어">
+    <div id="bgm"></div>
+    <div id="bgmTitle">♪ 브금 준비 중</div>
+    <div id="bgmArtist"></div>
+  </div>
+  <div id="songLinks"></div>
+  <a id="ticketLink" target="_blank" rel="noopener"></a>
+  <form id="nameForm" autocomplete="off">
+    <input id="nameInput" maxlength="6" placeholder="이름 입력 (6자)" aria-label="플레이어 이름" enterkeyhint="done">
+    <button type="submit">등록</button>
+    <button type="button" id="nameCancel" class="cancel">취소</button>
+  </form>
+</body>
+</html>

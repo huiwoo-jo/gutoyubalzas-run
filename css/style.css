@@ -1,0 +1,46 @@
+html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-action: none; }
+canvas { display: block; image-rendering: pixelated; position: absolute; }   /* 위치, 크기: main.js fit() */
+
+/* 브금 카드: 유튜브 플레이어(정책상 200×200, 숨기지 않음), 곡 제목, 가수 */
+#bgmCard {
+  position: absolute; top: 8px; right: 8px; display: none; flex-direction: column; width: 200px;
+  padding: 4px; background: #111; border: 3px solid #ffd34d; box-shadow: 4px 4px 0 #000;
+  font: bold 14px sans-serif; color: #fff;
+}
+#bgmCard iframe, #bgm { width: 200px; height: 200px; display: block; }
+#bgmTitle, #bgmArtist { padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#bgmTitle { margin-top: 5px; color: #ffd34d; }
+#bgmArtist { margin: 2px 0 1px; font-size: 12px; color: #aaa; }
+
+/* 게임 오버 브금 목록의 곡별 '듣기' 버튼 (위치: input.js syncSongLinks) */
+#songLinks a {
+  position: absolute; transform: translate(-50%, -50%); padding: .15em .5em; white-space: nowrap;
+  font-weight: bold; font-family: sans-serif; text-decoration: none;
+  border: 2px solid #f9c; background: #111; color: #f9c;
+}
+
+/* 게임 오버 '예매하기' 버튼 (위치: input.js syncTicketLink) */
+#ticketLink {
+  position: absolute; transform: translate(-50%, -50%); display: none; padding: .4em 1em; white-space: nowrap;
+  font-weight: bold; font-family: sans-serif; text-decoration: none;
+  border: 3px solid #111; background: #f9c; color: #111; box-shadow: 4px 4px 0 #000;
+}
+
+#nameForm {
+  position: absolute; transform: translate(-50%, -50%);   /* 위치: main.js fit() */
+  display: none; gap: 8px; font: bold 20px sans-serif;
+}
+
+#nameForm input {
+  width: 180px; padding: 10px 12px; font: inherit; text-align: center;
+  border: 3px solid #ffd34d; background: #111; color: #fff; outline: none;
+}
+
+#nameForm input.invalid { border-color: #f55; }
+
+#nameForm button {
+  padding: 10px 16px; font: inherit; cursor: pointer;
+  border: 3px solid #ffd34d; background: #ffd34d; color: #111;
+}
+
+#nameForm button.cancel { background: #111; color: #ffd34d; }
