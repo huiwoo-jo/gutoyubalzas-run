@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # ES 모듈 문법 검사 (.mjs로 복사해 검사)
+      - name: Check JS Syntax
+        run: |
+          shopt -s nullglob
+          tmp="$(mktemp -d)"
+          for f in js/*.js; do
+            cp "$f" "$tmp/$(basename "$f" .js).mjs"
+            node --check "$tmp/$(basename "$f" .js).mjs"
+          done
+
+      - name: Check Python Syntax
+        run: python -m py_compile serve.py
+
+      # 키 없이 빌드 (광고판 없이 동작 확인)
+      - name: Build env.js
+        run: python serve.py build
