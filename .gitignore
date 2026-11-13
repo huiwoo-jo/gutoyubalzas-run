@@ -1,0 +1,12 @@
+# ai
+receipts/
+review-receipts/
+
+# 로컬 미리보기 설정
+.claude/
+.DS_Store
+
+# 환경 변수
+.env.example
+.env.local
+js/env.js
