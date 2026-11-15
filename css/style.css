@@ -1,0 +1,149 @@
+html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-action: none; }
+#game { display: block; image-rendering: pixelated; position: absolute; }   /* 위치, 크기: main.js fit() */
+
+/* 브금 카드: 유튜브 플레이어(정책상 200×200, 숨기지 않음), 곡 제목, 가수 */
+#bgmCard {
+  position: absolute; top: 8px; right: 8px; display: none; flex-direction: column; width: 200px;
+  padding: 4px; background: #111; border: 3px solid #ffd34d; box-shadow: 4px 4px 0 #000;
+  font: bold 14px sans-serif; color: #fff;
+}
+/* 멤버 합류 카드: 브금 카드와 같은 모양, 왼쪽에서 들어왔다 나감 (위치: joincard.js) */
+#joinCard {
+  position: absolute; left: -240px; display: none; flex-direction: column; width: 200px;
+  padding: 4px; background: #111; border: 3px solid #ffd34d; box-shadow: 4px 4px 0 #000;
+  font: bold 14px sans-serif; color: #fff; pointer-events: none;
+  transform: scale(var(--s, 1)); transform-origin: top left;   /* 게임 화면 크기에 맞춰 축소 */
+}
+#joinCard.show { display: flex; animation: joinSlide 2.4s ease-in-out forwards; }
+#joinPic { width: 200px; height: 200px; display: block; background: #222; }
+#joinName { margin-top: 5px; padding: 0 2px; color: #ffd34d; }
+#joinSub { margin: 2px 0 1px; padding: 0 2px; font-size: 12px; color: #aaa; }
+@keyframes joinSlide {
+  0%, 100% { left: -240px; }
+  15%, 80% { left: var(--x); }
+}
+#bgmCard iframe, #bgm { width: 200px; height: 200px; display: block; }
+#bgmTitle, #bgmArtist { padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#bgmTitle { margin-top: 5px; color: #ffd34d; }
+#bgmArtist { margin: 2px 0 1px; font-size: 12px; color: #aaa; }
+
+/* 게임 오버 브금 목록의 곡별 '듣기' 버튼 (위치: input.js syncSongLinks) */
+#songLinks a {
+  position: absolute; transform: translate(-50%, -50%); padding: .15em .5em; white-space: nowrap;
+  font-weight: bold; font-family: sans-serif; text-decoration: none;
+  border: 2px solid #f9c; background: #111; color: #f9c;
+}
+
+/* 게임 오버 '예매하기' 버튼 (위치: input.js syncTicketLink) */
+#ticketLink {
+  position: absolute; transform: translate(-50%, -50%); display: none; padding: .4em 1em; white-space: nowrap;
+  font-weight: bold; font-family: sans-serif; text-decoration: none;
+  border: 3px solid #111; background: #f9c; color: #111; box-shadow: 4px 4px 0 #000;
+}
+
+#nameForm {
+  position: absolute; transform: translate(-50%, -50%);   /* 위치: main.js fit() */
+  display: none; flex-wrap: wrap; justify-content: center; gap: 8px; font: bold 20px sans-serif;
+}
+#nameForm .nameNote { flex-basis: 100%; margin: 2px 0 0; text-align: center; font-size: 13px; font-weight: normal; color: #ccc; text-shadow: 1px 1px 0 #000; }
+
+#nameForm input {
+  width: 180px; padding: 10px 12px; font: inherit; text-align: center;
+  border: 3px solid #ffd34d; background: #111; color: #fff; outline: none;
+}
+
+#nameForm input.invalid { border-color: #f55; }
+
+#nameForm button {
+  padding: 10px 16px; font: inherit; cursor: pointer;
+  border: 3px solid #ffd34d; background: #ffd34d; color: #111;
+}
+
+#nameForm button.cancel { background: #111; color: #ffd34d; }
+
+/* 게임 화면 위 HTML: 게임 화면과 같은 위치, 크기 (--s: 1280px 기준 배율) */
+#ui { position: absolute; pointer-events: none; font-family: sans-serif; }
+#ui > * { pointer-events: auto; }
+/* only-title: 시작 화면, only-menu: 시작, 게임 오버, only-away: 게임 오버, 일시정지 (홈 버튼) */
+.only-title, .only-menu, .only-away { display: none !important; }
+body[data-scene="title"] .only-title,
+body[data-scene="title"] .only-menu,
+body[data-scene="gameover"] .only-menu,
+body[data-scene="gameover"] .only-away,
+body[data-paused] .only-away { display: block !important; }
+
+/* 오른쪽 위 아이콘: 장면별로 보이는 것만 오른쪽부터 차례로 */
+#icons { position: absolute; top: calc(20px * var(--s)); right: calc(20px * var(--s)); display: flex; gap: calc(12px * var(--s)); }
+#icons > * { width: calc(44px * var(--s)); height: calc(44px * var(--s)); padding: 0; border: 0; background: none; cursor: pointer; }
+#ui svg { display: block; width: 100%; height: 100%; filter: drop-shadow(calc(3px * var(--s)) calc(3px * var(--s)) 0 #000); }
+
+#notice {
+  position: absolute; left: 0; right: 0; bottom: calc(6px * var(--s)); margin: 0; text-align: center;
+  font-size: calc(14px * var(--s)); color: #aaa; text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+}
+/* 플레이 방법, 만든 사람들 창 */
+dialog {
+  max-width: min(560px, 90vw); max-height: 86vh; overflow: auto; padding: 20px 24px;
+  border: 3px solid #ffd34d; box-shadow: 6px 6px 0 #000; background: #111; color: #fff;
+  font: 15px/1.6 sans-serif;
+}
+dialog::backdrop { background: rgba(0, 0, 0, .6); }
+dialog h2 { margin: 0 0 10px; font-size: 20px; color: #ffd34d; }
+dialog ul { margin: 0; padding-left: 1.2em; }
+dialog dl { margin: 0; }
+dialog dt { margin-top: 10px; font-size: 13px; color: #aaa; }
+dialog dd { margin: 0; font-weight: bold; }
+dialog .members { margin-top: 4px; font-weight: normal; font-size: 14px; }
+dialog .small { margin: 0 0 6px; font-size: 13px; color: #ccc; }
+dialog a { color: #f9c; }
+dialog form { margin-top: 16px; text-align: right; }
+dialog form button {
+  padding: 6px 16px; font: bold 15px sans-serif; cursor: pointer;
+  border: 3px solid #ffd34d; background: #ffd34d; color: #111;
+}
+
+/* 플레이 방법: 왼쪽 그림, 오른쪽 설명 */
+dialog .howto { padding: 0; list-style: none; }
+dialog .howto li { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-top: 1px dashed #333; }
+dialog .howto li:first-child { border-top: 0; }
+dialog .howto canvas { flex: none; width: 150px; height: 56px; image-rendering: pixelated; }
+dialog .howto p { margin: 0; font-size: 14px; line-height: 1.5; }
+dialog .howto b { margin-right: 4px; color: #ffd34d; }
+@media (max-width: 480px) { dialog .howto canvas { width: 100px; height: 40px; } }
+
+/* 만든 사람들: 멤버 이름 앞 우웩이 */
+dialog .members { list-style: none; padding: 0; }
+dialog .members li { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+dialog .members canvas { width: 28px; height: 28px; }
+
+/* 랭킹 창 */
+dialog .tabs { display: flex; gap: 6px; margin-bottom: 6px; }
+dialog #rankNote { margin: 0 0 8px; }
+dialog .tabs button {
+  padding: 4px 14px; font: bold 14px sans-serif; cursor: pointer;
+  border: 2px solid #555; background: #111; color: #aaa;
+}
+dialog .tabs button[aria-selected="true"] { border-color: #ffd34d; background: #ffd34d; color: #111; }
+dialog .rank { min-width: min(420px, 80vw); margin: 0; padding: 0; list-style: none; }
+dialog .rank li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px dashed #333; }
+dialog .rank li:first-child { border-top: 0; }
+dialog .rank .no { width: 1.8em; flex: none; text-align: center; font-weight: bold; color: #aaa; }
+dialog .rank .top1 .no { color: #111; background: #ffd34d; }
+dialog .rank .top2 .no { color: #111; background: #ccc; }
+dialog .rank .top3 .no { color: #111; background: #d08a4a; }
+dialog .rank .top1 .name { color: #ffd34d; }
+dialog .rank .info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+dialog .rank .name { font-weight: bold; }
+dialog .rank .meta { font-size: 12px; color: #888; }
+dialog .rank .round { flex: none; padding: 1px 6px; font-size: 12px; font-weight: bold; border: 1px solid #ffd34d; color: #ffd34d; }
+dialog .rank .score { flex: none; font-weight: bold; }
+dialog .rank li.msg { justify-content: center; color: #aaa; }
+
+/* 기록 저장 안내 */
+dialog .lines { padding-left: 1.1em; font-size: 14px; }
+dialog .lines li { margin: 3px 0; }
+button.link { padding: 0; border: 0; background: none; font: inherit; color: #f9c; text-decoration: underline; cursor: pointer; }
+dialog .privacyLink { margin: 10px 0 0; text-align: right; }
+
+#nameForm .nameNote button.link { padding: 0; border: 0; background: none; color: #f9c; font: inherit; }   /* 등록 버튼 스타일 덮어쓰기 */
