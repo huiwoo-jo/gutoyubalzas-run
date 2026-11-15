@@ -87,12 +87,16 @@ body[data-paused] .only-away { display: block !important; }
 dialog {
   box-sizing: border-box;   /* 여백 포함해서 화면 높이 안에 */
   max-width: min(clamp(560px, 34vw, 700px), 92vw); max-height: 92vh; overflow: auto;
+  max-width: min(clamp(560px, 34vw, 700px), 92vw); max-height: 92dvh; overflow: auto;   /* dvh: 주소창 제외한 실제 보이는 높이 (앞 줄 vh는 예전 브라우저용) */
   padding: clamp(10px, 2.6vh, 20px) clamp(14px, 3vw, 24px);
+  padding: clamp(10px, 2.6dvh, 20px) clamp(14px, 3vw, 24px);
   border: 3px solid #ffd34d; box-shadow: 6px 6px 0 #000; background: #111; color: #fff;
   font: clamp(12px, 1.6vh, 18px)/1.6 sans-serif;   /* 화면 높이에 맞춰 (큰 화면은 조금 크게) */
+  font: clamp(12px, 1.6dvh, 18px)/1.6 sans-serif;
 }
 dialog::backdrop { background: rgba(0, 0, 0, .6); }
 dialog h2 { margin: 0 0 clamp(4px, 1.4vh, 12px); font-size: clamp(15px, 2.2vh, 24px); color: #ffd34d; }
+dialog h2 { margin: 0 0 clamp(4px, 1.4dvh, 12px); font-size: clamp(15px, 2.2dvh, 24px); color: #ffd34d; }
 dialog ul { margin: 0; padding-left: 1.2em; }
 dialog dl { margin: 0; }
 dialog dt { margin-top: 10px; font-size: 13px; color: #aaa; }
@@ -111,7 +115,9 @@ dialog .howto { padding: 0; list-style: none; }
 dialog .howto li { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-top: 1px dashed #333; }
 dialog .howto li:first-child { border-top: 0; }
 dialog .howto canvas { flex: none; width: clamp(90px, 11vw, 190px); height: clamp(34px, 6vh, 70px); image-rendering: pixelated; }
+dialog .howto canvas { flex: none; width: clamp(90px, 11vw, 190px); height: clamp(34px, 6dvh, 70px); image-rendering: pixelated; }
 dialog .howto p { margin: 0; font-size: clamp(12px, 1.5vh, 17px); line-height: 1.5; }
+dialog .howto p { margin: 0; font-size: clamp(12px, 1.5dvh, 17px); line-height: 1.5; }
 dialog .howto b { margin-right: 4px; color: #ffd34d; }
 
 /* 만든 사람들: 멤버 이름 앞 우웩이 */
@@ -153,17 +159,21 @@ dialog .privacyLink { margin: 10px 0 0; text-align: right; }
 /* ===== 터치 기기 (body[data-touch], main.js) ===== */
 #ui button, #rotateGuide, #game { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 
-/* 플레이 버튼: 플레이 중에만, 왼쪽 아래 슬라이딩, 오른쪽 아래 점프 */
+/* 플레이 버튼: 플레이 중에만, 화면(창) 양 끝 아래 고정 */
 .touchBtn {
-  display: none; position: absolute; bottom: calc(24px * var(--s));
-  height: max(40px, calc(66px * var(--s))); width: auto;
-  padding: 0; border: 0; background: none; cursor: pointer;
+  display: none; position: fixed; z-index: 5; bottom: max(10px, env(safe-area-inset-bottom));
+  height: clamp(52px, 15vh, 76px); padding: 8px;   /* 그림보다 넓게 눌리는 영역 */
+  height: clamp(52px, 15dvh, 76px); padding: 8px;
+  border: 0; background: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
 }
-.touchBtn img { width: auto; height: 100%; }
-.touchBtn:active { transform: translateY(3px); opacity: .7; }
-#slideBtn { left: calc(24px * var(--s)); }
-#jumpBtn { right: calc(24px * var(--s)); }
-body[data-touch][data-scene="play"]:not([data-paused]) .touchBtn { display: flex; }
+.touchBtn img { display: block; width: auto; height: 100%; image-rendering: pixelated; pointer-events: none; filter: drop-shadow(2px 2px 0 #000); }
+.touchBtn img.pressed, .touchBtn.on img:not(.pressed) { display: none; }
+.touchBtn.on img.pressed { display: block; }   /* 누르면 안쪽 흰색, 글씨 투명 */
+.touchBtn:focus { outline: none; }
+#slideBtn { left: max(10px, env(safe-area-inset-left)); }
+#jumpBtn { right: max(10px, env(safe-area-inset-right)); }
+body[data-touch][data-scene="play"]:not([data-paused]) .touchBtn { display: block; }
 
 /* 가로 회전 안내: 처음 한 번 전체 화면 */
 #rotateGuide {
@@ -184,25 +194,28 @@ body[data-portrait] #rotateGuide { cursor: default; }
 /* 낮은 화면 (휴대폰 가로): 창, 이름 입력칸 줄이기 */
 /* 낮고 넓은 화면 (휴대폰 가로): 창 내용을 2열로, 글자는 12px 이상 (넘치면 쪽 나눔) */
 @media (max-height: 520px) and (min-width: 600px) {
-  dialog { max-width: min(880px, 94vw); font-size: 13px; }
-  dialog h2 { font-size: 17px; }
+  dialog { max-width: min(760px, 86vw); max-height: 88vh; font-size: 12px; }
+  dialog { max-width: min(760px, 86vw); max-height: 88dvh; font-size: 12px; }
+  dialog h2 { font-size: 15px; }
   dialog .howto { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
   dialog .howto li:nth-child(2) { border-top: 0; }
   dialog .howto li { gap: 10px; padding: 4px 0; }
-  dialog .howto canvas { width: 84px; height: 32px; }
+  dialog .howto canvas { width: 72px; height: 28px; }
   dialog .howto p { font-size: 12px; line-height: 1.4; }
-  dialog .creditCols { display: grid; grid-template-columns: 1.3fr 1fr; column-gap: 24px; }
-  dialog .creditCols .members { columns: 2; margin-top: 2px; font-size: 13px; }
-  dialog .creditCols dl > div + div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; }   /* 역할, 이름 한 줄 */
-  dialog .creditCols dl > div + div dt { margin-top: 4px; }
+  dialog .creditCols { display: grid; grid-template-columns: 1.3fr 1fr; grid-template-areas: 'cast staff' 'cast info'; column-gap: 24px; align-content: start; }
+  dialog .creditCols .cast { grid-area: cast; } dialog .creditCols .staff { grid-area: staff; } dialog .creditCols .info { grid-area: info; }
+  dialog[data-page] .creditCols, dialog[data-page] .lineCols { display: block; }   /* 쪽 나눔 중에는 한 묶음씩 */
+  dialog .creditCols .members { columns: 2; margin-top: 2px; font-size: 12px; }
+  dialog .creditCols .staff > div { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; }   /* 역할, 이름 한 줄 */
+  dialog .creditCols .staff dt { margin-top: 4px; }
   dialog .members li { margin: 0; }
   dialog .members canvas { width: 22px; height: 22px; }
   dialog .small { font-size: 12px; }
   dialog dt { margin-top: 6px; font-size: 12px; }
-  dialog dd { font-size: 13px; }
+  dialog dd { font-size: 12px; }
   dialog form { margin-top: 8px; }
-  dialog .lineCols { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
-  dialog .lines { font-size: 13px; }
+  dialog .lineCols { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 20px; }
+  dialog .lines { font-size: 12px; }
 }
 
 @media (max-height: 520px) {
