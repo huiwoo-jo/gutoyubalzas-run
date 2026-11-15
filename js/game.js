@@ -3,7 +3,7 @@
 // 목숨: 하트 3개 (충돌 시 1개 차감, 하트 아이템으로 1개 회복, 0개면 게임 오버)
 import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
-  GATHER_LENGTH, FEVER_LENGTH, CREW_FEVER_DELAY_S, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
+  GATHER_LENGTH, FEVER_LENGTH, LAP_FEVER_DELAY_S, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
   OBSTACLES, PX_PER_M, TEMPO, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
@@ -25,7 +25,7 @@ export const state = {
   phase: 'gather',
   phaseStart: 0,          // 현재 구간이 시작된 dist
   mapBase: 0,             // 이번 바퀴에서 중간 피버 전까지 달린 맵 거리
-  feverWait: 0,           // 맵 끝에서 피버를 기다린 시간 (5인 달리기)
+  feverWait: 0,           // 맵 끝에서 피버를 기다린 시간
   round: 1,               // 몇 번째 모으기인지
   leader: { y: GROUND_Y, vy: 0, sliding: false },
   crew: [],
@@ -327,7 +327,7 @@ export function update(dt) {
     // 장애물은 피버 직전 한 화면 전까지
     if (state.dist > state.nextObstacleAt && map + W * 1.5 < feverAt) spawnObstacle();
     if (map >= feverAt) {
-      const wait = state.solo ? 0 : CREW_FEVER_DELAY_S;   // 5인 달리기는 조금 더 달린 뒤
+      const wait = feverAt >= GATHER_LENGTH ? LAP_FEVER_DELAY_S : 0;   // 맵 끝은 조금 더 달린 뒤
       state.feverWait += dt;
       if (state.feverWait >= wait) startFever();
     }
