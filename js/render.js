@@ -2,7 +2,7 @@
 import {
   W, H, GROUND_Y, SPEED, PANEL_ORDER, BG_PARALLAX, GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT,
   MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, MEMBERS,
-  OBSTACLES, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
+  OBSTACLES, IS_TOUCH, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist } from './game.js';
@@ -384,7 +384,7 @@ function drawGameOver() {
   const songs = playedSongs().length > 0;
   drawRanking(songs ? W / 2 - 190 : W / 2, 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
   if (songs) drawSongs(SONGS_X, SONGS_Y, RANK_SHOW);
-  drawText('Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
+  drawText(IS_TOUCH ? '화면을 눌러 다시 하기' : 'Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
 }
 
 export function render() {
@@ -401,6 +401,6 @@ export function render() {
   if (state.paused) {
     ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
     drawText('일시정지', H / 2 - 20, 56);
-    drawText('Space 또는 클릭으로 다시 시작', H / 2 + 40, 28, '#ffd34d');
+    drawText(IS_TOUCH ? '화면을 눌러 다시 시작' : 'Space 또는 클릭으로 다시 시작', H / 2 + 40, 28, '#ffd34d');
   }
 }

@@ -36,8 +36,9 @@ python3 serve.py
 | `assets/characters/멤버/` | 멤버별 달리기(`멤버_run1~3`) · 점프(`멤버_jump`) · 악기 든 모습(`멤버_악기`, 합류 카드) |
 | `assets/backgrounds/` | 배경 패널(`bg_far1~11`) · 바닥(`bg_ground`) |
 | `assets/common/` | 시작 화면 (배경, 조명, 로고, START 버튼, 멤버 악기) · 피버 타임 무대 |
+| `assets/icons/` | 버튼 아이콘 (흰색 도트 svg: `rank`, `instagram`, `help`, `home`, `info`, `slide`, `jump`, `rotate_phone`), 파일만 바꾸면 교체 |
 | `assets/obstacles/` | 장애물 이미지 (`amp`: 바닥 앰프, `truss`: 천장 조명 트러스) |
-| `assets/sounds/` | 타이틀 브금(`title_bgm_icecream`), 효과음(`jump`, `slide`, `eat`, `join_멤버`, `gameover`) |
+| `assets/sounds/` | 타이틀 브금(`title_bgm_icecream`: '아이스크림' 8bit 편곡 버전), 효과음(`jump`, `slide`, `eat`, `join_멤버`, `gameover`) |
 | `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트, `uwek_all`: 단체) |
 
 ## 조작
@@ -45,10 +46,13 @@ python3 serve.py
 | 동작 | 키보드 | 터치 |
 | --- | --- | --- |
 | 시작 | START 버튼 클릭 | START 버튼 탭 |
-| 점프 | Space / ↑ | 화면 오른쪽 탭 |
-| 슬라이딩 | ↓ 누르고 있기 | 화면 왼쪽 누르고 있기 |
+| 점프 | Space / ↑ | JUMP 버튼 (오른쪽 아래) 또는 화면 오른쪽 탭 |
+| 슬라이딩 | ↓ 누르고 있기 | SLIDE 버튼 (왼쪽 아래) 또는 화면 왼쪽 누르고 있기 |
 | 자동 플레이 (테스트용) | A | `?auto` 주소 |
 | 랭킹 이름 등록 (게임 오버 후) | 이름 입력 후 등록 버튼 (취소 버튼: 건너뛰기) | 같음 |
+
+- **휴대폰, 태블릿** (터치 기기): 처음에 가로로 돌리라는 안내가 전체 화면으로 뜨고, 누르면 시작 화면으로 넘어갑니다. 지원하는 브라우저(안드로이드 크롬 등)는 이때 전체 화면, 가로 고정을 시도합니다 (iOS는 지원 안 함).
+- 플레이 중에는 흰색 SLIDE, JUMP 버튼이 나오고, 세로로 돌리면 일시정지됩니다.
 
 ## 규칙
 
@@ -69,6 +73,7 @@ python3 serve.py
 
 - `js/config.js`의 `BGM_PLAYLIST`에 재생목록 ID(주소의 `list=` 뒤 값)를 넣습니다. 채널 전체 영상을 쓰려면 채널 ID(`UC…`)의 앞 두 글자를 `UU`로 바꿔 넣습니다.
 - 유튜브 정책상 플레이어는 숨기지 않고 화면 오른쪽 위에 200×200으로 보여 줍니다.
+- 휴대폰, 태블릿(터치 기기)은 화면이 작아 플레이어가 게임을 가리므로, 유튜브 대신 게임 중에도 타이틀 브금('아이스크림' 8bit 편곡 버전)을 반복 재생합니다 (게임 오버 곡 목록 없음).
 - 퍼가기가 막힌 영상은 건너뛰고, 인터넷이 없으면 브금 없이 진행됩니다. 유튜브 광고가 나올 수 있습니다.
 - 시작 화면, 게임 오버 화면(효과음이 끝난 뒤)에는 타이틀 브금(`assets/sounds`)이 나옵니다. 브라우저가 자동 재생을 막으면 START 외의 곳을 누르면 타이틀 브금이 나옵니다.
 - 점프, 슬라이딩, 음표 먹기, 멤버 합류, 게임 오버 효과음이 나옵니다. 크기는 `SFX_VOLUME`, `TITLE_BGM_VOLUME`으로 조절합니다.
@@ -113,8 +118,8 @@ python3 serve.py
 
 | 역할 | 이름 |
 | --- | --- |
-| 출연 | 천진우와 구토유발자들 ([@gutoyubalzas](https://www.instagram.com/gutoyubalzas/)): 천진우 [@1000_jinwoo](https://www.instagram.com/1000_jinwoo/), 기토 [@_guitae](https://www.instagram.com/_guitae/), 법영이(한효빈) [@beob_young](https://www.instagram.com/beob_young/), 양동훈 [@yadohoo](https://www.instagram.com/yadohoo/), 리장단 [@leejangdan](https://www.instagram.com/leejangdan/) |
+| 출연 | 천진우와 구토유발자들 ([@gutoyubalzas](https://www.instagram.com/gutoyubalzas/)): 천진우 [@1000_jinwoo](https://www.instagram.com/1000_jinwoo/), 기토 [@_guitae](https://www.instagram.com/_guitae/), 법영이 [@beob_young](https://www.instagram.com/beob_young/), 양동훈 [@yadohoo](https://www.instagram.com/yadohoo/), 리장단 [@leejangdan](https://www.instagram.com/leejangdan/) |
 | 게임 개발 | 눈사람 ([카카오톡 오픈채팅](https://open.kakao.com/o/sButobqi)) |
-| 타이틀 음악, 효과음 | 권주부 ([@hj.gwon.kr](https://www.instagram.com/hj.gwon.kr/))|
+| '아이스크림' 8bit 편곡, 효과음 | 권주부 ([@hj.gwon.kr](https://www.instagram.com/hj.gwon.kr/))|
 | 캐릭터, 그래픽 디자인 | 광순 ([@_gwangsun](https://www.instagram.com/_gwangsun/)) |
-| 게임 중 음악 | 천진우 유튜브 음원 (유튜브 플레이어로 재생) |
+| 게임 중 음악 | PC: 천진우의 곡을 유튜브에서 랜덤 재생 / 모바일, 태블릿: '아이스크림' 8bit 편곡 버전 |
