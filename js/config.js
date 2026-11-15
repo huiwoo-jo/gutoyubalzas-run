@@ -85,8 +85,8 @@ export const BGM_PLAYLIST = 'PLgiJpwmxCJ6dj1PHhREG_x0w-N9gq-4Lr';
 export const BGM_VOLUME = 50;            // 0~100
 
 // 효과음, 타이틀 브금 (assets/sounds)
-export const SFX_VOLUME = 0.6;           // 0~1
-export const TITLE_BGM_VOLUME = 0.4;     // 0~1
+export const SFX_VOLUME = 0.9;           // 0~1
+export const TITLE_BGM_VOLUME = 0.35;    // 0~1 (효과음이 묻히지 않게 낮게)
 
 // 광고판: Mortals Log의 공연, 앨범을 랜덤사용
 export const SITE_URL = 'https://mortals-log.vercel.app';
