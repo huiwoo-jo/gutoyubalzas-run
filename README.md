@@ -88,6 +88,7 @@ python3 serve.py
 
 - **로컬**: 프로젝트 폴더의 `.env.local`에 위 두 값을 적고 `python3 serve.py`로 실행하면, 서버가 `/js/env.js`를 그때그때 만들어 줍니다.
 - **배포**: 배포 서비스의 환경 변수에 위 두 값을 넣고, 빌드 명령을 `python3 serve.py build`로 지정합니다. 이 명령이 `js/env.js` 파일을 만들고, 그 뒤 프로젝트 폴더를 그대로 정적 사이트로 올리면 됩니다. 환경 변수가 `.env.local`보다 우선합니다.
+- **Vercel**: `vercel.json`에 빌드 명령과 출력 폴더가 들어 있어, 저장소를 가져온 뒤 Settings > Environment Variables에 `SUPABASE_URL`, `SUPABASE_KEY`만 넣으면 됩니다. `main`에 올라가면 자동으로 배포됩니다.
 
 ## 임시 처리된 에셋
 
