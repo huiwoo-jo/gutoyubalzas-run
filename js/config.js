@@ -14,6 +14,8 @@ export const panelDist = i => Math.max(0, i - 0.3) * W / BG_PARALLAX;    // i번
 // 한 사이클
 export const GATHER_LENGTH = (PANEL_ORDER.length - 1) * W / BG_PARALLAX;
 export const FEVER_LENGTH = 6000;        // 피버 타임 거리
+export const RESUME_COUNT_MS = 3000;     // 이어하기 전 3, 2, 1
+export const LAP_FEVER_DELAY_S = 2;      // 맵 끝에서 이만큼 더 달린 뒤 피버 (두 모드 같음, 중간 피버는 바로)
 export const SOLO_FEVERS = 2;            // 캐릭터 달리기: 한 바퀴 중간에 더 넣는 피버 횟수 (맵은 이어서)
 export const FEVER_NOTE_MULT = 2;        // 피버 중 음표 점수 배수
 export const FEVER_NOTE_GAP = 110;       // 피버 중 음표 간격

@@ -3,7 +3,7 @@
 // 목숨: 하트 3개 (충돌 시 1개 차감, 하트 아이템으로 1개 회복, 0개면 게임 오버)
 import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
-  GATHER_LENGTH, FEVER_LENGTH, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
+  GATHER_LENGTH, FEVER_LENGTH, LAP_FEVER_DELAY_S, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
   OBSTACLES, PX_PER_M, TEMPO, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
@@ -19,11 +19,13 @@ export const state = {
   slideHeld: false,
   solo: null,             // 캐릭터 달리기 멤버 id (null이면 5인 달리기)
   paused: false,          // 창을 벗어나면 멈춤 (input.js)
+  countdownUntil: 0,      // 이어하기 카운트다운 끝 시각
   dist: 0,                // 총 달린 거리
   speed: SPEED,           // 현재 속도 px/s
   phase: 'gather',
   phaseStart: 0,          // 현재 구간이 시작된 dist
   mapBase: 0,             // 이번 바퀴에서 중간 피버 전까지 달린 맵 거리
+  feverWait: 0,           // 맵 끝에서 피버를 기다린 시간
   round: 1,               // 몇 번째 모으기인지
   leader: { y: GROUND_Y, vy: 0, sliding: false },
   crew: [],
@@ -71,6 +73,7 @@ export function reset() {
     phase: 'gather',
     phaseStart: 0,
     mapBase: 0,
+    feverWait: 0,
     round: 1,
     leader: { y: GROUND_Y, vy: 0, sliding: false },
     crew: [{ ...leaderMember(), x: LEADER_X }],
@@ -89,6 +92,7 @@ export function reset() {
     flashAt: -1e9,
     popups: [],
     paused: false,
+    countdownUntil: 0,
     scene: 'play',
   });
   playSfx('gamestart');
@@ -156,6 +160,7 @@ function addPopup(text, color = '#fff') {
 // ===== 구간 전환 =====
 function startFever() {
   state.mapBase = mapDist();
+  state.feverWait = 0;
   Object.assign(state, {
     phase: 'fever', phaseStart: state.dist, obstacles: [], heartItems: [],
     nextNoteAt: state.dist + 300, flashAt: performance.now(),
@@ -280,8 +285,8 @@ function touches(box, item, pad = 20) {
 
 // ===== 매 프레임 =====
 export function update(dt) {
-  if (state.paused) return;
   const now = performance.now();
+  if (state.paused || now < state.countdownUntil) return;   // 일시정지, 이어하기 카운트다운 중
   if (state.scene === 'title' && state.auto) reset();
   if (state.scene === 'intro' && now - state.introStart > INTRO_MS) { reset(); state.flashAt = now; state.hintAt = now; }
   if (state.scene === 'fall' && now - state.fallTime > 1000) gameOver();
@@ -321,7 +326,11 @@ export function update(dt) {
     }
     // 장애물은 피버 직전 한 화면 전까지
     if (state.dist > state.nextObstacleAt && map + W * 1.5 < feverAt) spawnObstacle();
-    if (map >= feverAt) startFever();
+    if (map >= feverAt) {
+      const wait = feverAt >= GATHER_LENGTH ? LAP_FEVER_DELAY_S : 0;   // 맵 끝은 조금 더 달린 뒤
+      state.feverWait += dt;
+      if (state.feverWait >= wait) startFever();
+    }
   } else {
     spawnFeverNotes();
     if (local >= FEVER_LENGTH) endFever();

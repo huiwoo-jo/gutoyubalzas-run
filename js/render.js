@@ -34,10 +34,11 @@ function drawUwek(name, cx, cy, h) {
 function drawPanels() {
   const bgX = mapDist() * BG_PARALLAX;
   const first = Math.floor(bgX / W);
-  for (let p = first; p <= first + 1 && p < PANEL_ORDER.length; p++) {
+  for (let p = first; p <= first + 1; p++) {
     const x = Math.round(p * W - bgX);
-    ctx.drawImage(IMG['bg_far' + PANEL_ORDER[p]], x, 0);
-    if (PANEL_ORDER[p] === 1) {                       // 빈 벽 패널: 가운데 조명 아래 광고판
+    const end = p >= PANEL_ORDER.length;   // 맵 끝 뒤 (피버 기다림): 빈 벽 패널, 광고판 없음
+    ctx.drawImage(IMG['bg_far' + (end ? 1 : PANEL_ORDER[p])], x, 0);
+    if (!end && PANEL_ORDER[p] === 1) {                       // 빈 벽 패널: 가운데 조명 아래 광고판
       const ad = adFor(state.round, p);
       if (ad) drawBillboard(ad, x + 400, 168);
     }
@@ -413,9 +414,14 @@ export function render() {
   drawProgress();
   drawHud();
   if (state.scene === 'gameover') drawGameOver();
+  const left = state.countdownUntil - performance.now();
+  if (left > 0) {   // 이어하기 카운트다운 3, 2, 1
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H);
+    drawText(String(Math.ceil(left / 1000)), H / 2 + 30, 120, '#ffd34d');
+  }
   if (state.paused) {
     ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
-    drawText('일시정지', H / 2 - 20, 56);
-    drawText(IS_TOUCH ? '화면을 눌러 다시 시작' : 'Space 또는 클릭으로 다시 시작', H / 2 + 40, 28, '#ffd34d');
+    drawText('일시정지', H / 2 - 40, 56);
+    if (!IS_TOUCH) drawText('Space, Esc로 이어하기', H / 2 + 10, 24, '#ccc');   // 버튼: #pauseMenu
   }
 }
