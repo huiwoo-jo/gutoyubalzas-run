@@ -39,7 +39,7 @@ python3 serve.py
 | `assets/icons/` | 버튼 아이콘 (흰색 도트 svg: `rank`, `instagram`, `help`, `home`, `info`, `slide`, `jump`, 누른 상태 `slide_on`, `jump_on`, `rotate_phone`), 파비콘(`favicon`, `apple-touch-icon`: 기본 우웩이), 파일만 바꾸면 교체 |
 | `assets/obstacles/` | 장애물 이미지 (`amp`: 바닥 앰프, `truss`: 천장 조명 트러스) |
 | `assets/sounds/` | 타이틀 브금(`title_bgm`: '아이스크림' 8bit 편곡 버전), 플레이 브금(`game_bgm`: '이번 방학엔 공부 좀 해라' 8bit 편곡 버전) 효과음(`intro_crew`: 5인 달리기 등장, `gamestart`: 출발, `jump`, `slide`, `eat`, `eat_uwek`: 우웩이(하트) 먹기, `hit`, `join_멤버`, `gameover`) |
-| `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트, `uwek_all`: 단체) |
+| `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트) |
 
 ## 조작
 
