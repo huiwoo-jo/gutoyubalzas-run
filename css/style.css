@@ -74,16 +74,17 @@ body[data-paused] .only-away { display: block !important; }
 
 /* 오른쪽 위 아이콘: 장면별로 보이는 것만 오른쪽부터 차례로 */
 #icons { position: absolute; top: calc(20px * var(--s)); right: calc(20px * var(--s)); display: flex; gap: calc(12px * var(--s)); }
-#icons > * { width: calc(44px * var(--s)); height: calc(44px * var(--s)); padding: 0; border: 0; background: none; cursor: pointer; }
+#icons > * { width: max(32px, calc(44px * var(--s))); height: max(32px, calc(44px * var(--s))); padding: 0; border: 0; background: none; cursor: pointer; }
 #ui svg { display: block; width: 100%; height: 100%; filter: drop-shadow(calc(3px * var(--s)) calc(3px * var(--s)) 0 #000); }
 
 #notice {
   position: absolute; left: 0; right: 0; bottom: calc(6px * var(--s)); margin: 0; text-align: center;
-  font-size: calc(14px * var(--s)); color: #aaa; text-shadow: 1px 1px 0 #000;
+  font-size: max(10px, calc(14px * var(--s))); color: #aaa; text-shadow: 1px 1px 0 #000;
   pointer-events: none;
 }
 /* 플레이 방법, 만든 사람들 창 */
 dialog {
+  box-sizing: border-box;   /* 여백 포함해서 화면 높이 안에 */
   max-width: min(560px, 90vw); max-height: 86vh; overflow: auto; padding: 20px 24px;
   border: 3px solid #ffd34d; box-shadow: 6px 6px 0 #000; background: #111; color: #fff;
   font: 15px/1.6 sans-serif;
@@ -147,3 +148,48 @@ button.link { padding: 0; border: 0; background: none; font: inherit; color: #f9
 dialog .privacyLink { margin: 10px 0 0; text-align: right; }
 
 #nameForm .nameNote button.link { padding: 0; border: 0; background: none; color: #f9c; font: inherit; }   /* 등록 버튼 스타일 덮어쓰기 */
+
+/* ===== 터치 기기 (body[data-touch], main.js) ===== */
+#ui button, #rotateGuide, #game { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* 플레이 버튼: 플레이 중에만, 왼쪽 아래 슬라이딩, 오른쪽 아래 점프 */
+.touchBtn {
+  display: none; position: absolute; bottom: calc(24px * var(--s));
+  width: max(64px, calc(120px * var(--s))); height: max(64px, calc(120px * var(--s)));
+  padding: 0; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border: 3px solid #ffd34d; background: rgba(17, 17, 17, .55); box-shadow: 4px 4px 0 #000; cursor: pointer;
+  font: bold max(10px, calc(16px * var(--s))) sans-serif; color: #fff;
+}
+.touchBtn svg { width: 55%; height: auto; filter: none; }
+.touchBtn:active { background: rgba(255, 211, 77, .45); }
+#slideBtn { left: calc(24px * var(--s)); }
+#jumpBtn { right: calc(24px * var(--s)); }
+body[data-touch][data-scene="play"]:not([data-paused]) .touchBtn { display: flex; }
+
+/* 가로 회전 안내: 처음 한 번 전체 화면 */
+#rotateGuide {
+  display: none; position: fixed; inset: 0; z-index: 10; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 16px; background: rgba(0, 0, 0, .94); color: #fff; font: bold 20px sans-serif; text-align: center; cursor: pointer;
+}
+body[data-guide] #rotateGuide { display: flex; }
+#rotateGuide p { margin: 0; }
+#rotateGuide .small { font-size: 14px; font-weight: normal; color: #ccc; }
+#rotateGuide .tap { margin-top: 14px; padding: 6px 16px; border: 3px solid #ffd34d; color: #ffd34d; animation: blink 1.2s steps(2) infinite; }
+#rotateGuide .phone { width: 72px; height: 72px; margin-bottom: 8px; animation: turn 2s ease-in-out infinite; }
+#rotateGuide .phone svg { width: 100%; height: 100%; filter: none; }
+@keyframes turn { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+@keyframes blink { 50% { opacity: .35; } }
+
+/* 낮은 화면 (휴대폰 가로): 창, 이름 입력칸 줄이기 */
+@media (max-height: 520px) {
+  dialog { max-width: 92vw; max-height: 92vh; padding: 12px 16px; font-size: 13px; }
+  dialog h2 { margin-bottom: 6px; font-size: 16px; }
+  dialog form { margin-top: 10px; }
+  dialog .howto li { padding: 4px 0; gap: 10px; }
+  dialog .howto canvas { width: 96px; height: 36px; }
+  dialog .howto p, dialog .lines, dialog .members { font-size: 12px; }
+  dialog .rank li { padding: 4px 0; }
+  #nameForm { gap: 6px; font-size: 16px; }   /* 16px 미만이면 iOS가 확대 */
+  #nameForm input { width: 140px; padding: 6px 8px; }
+  #nameForm button { padding: 6px 10px; }
+}
