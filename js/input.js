@@ -1,8 +1,8 @@
 // 입력: 키보드, 터치 조작과 랭킹 이름 입력
-import { state, reset, jump, hooks, startIntro, registerScore, runMode } from './game.js';
+import { state, reset, jump, hooks, startIntro, registerScore, runMode, bgmTempo } from './game.js';
 import { loadName, saveName, refreshRanking, fetchRanking, groupOf } from './storage.js';
-import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, shownSongs, songUrl } from './bgm.js';
-import { playTitleBgm, stopTitleBgm, pauseTitleBgm, playGameBgm, stopGameBgm, pauseGameBgm, fadeOutGameBgm, stopSfx } from './sfx.js';
+import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, setBgmRate, shownSongs, songUrl } from './bgm.js';
+import { playTitleBgm, stopTitleBgm, pauseTitleBgm, playGameBgm, stopGameBgm, pauseGameBgm, fadeOutGameBgm, setGameBgmRate, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
@@ -41,9 +41,12 @@ function hideNameForm() {
 hooks.onReset = () => {
   hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover');
   stopTitleBgm();                    // 게임 오버 후 다시 하기: 타이틀 브금 끄기
+  hooks.onPhase();                   // 원래 속도로
   if (IS_TOUCH) playGameBgm();       // 터치 기기는 플레이 브금 (PC는 유튜브)
 };
 hooks.onJoin = showJoinCard;
+// 브금 빠르기: 라운드가 오를수록, 피버 타임에 조금 빠르게 (새 판은 원래 속도)
+hooks.onPhase = () => { setBgmRate(bgmTempo()); setGameBgmRate(bgmTempo()); };
 // 마지막 충돌: 브금을 먼저 줄여 타격음, 게임 오버음과 겹치지 않게 (목록은 여기까지 들은 곡만)
 hooks.onFall = () => {
   fadeOutBgm(800);

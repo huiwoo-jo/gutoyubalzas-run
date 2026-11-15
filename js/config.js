@@ -87,6 +87,8 @@ export const BGM_VOLUME = 50;            // 0~100
 // 효과음, 타이틀 브금 (assets/sounds)
 export const SFX_VOLUME = 0.9;           // 0~1
 export const TITLE_BGM_VOLUME = 0.35;    // 0~1 (효과음이 묻히지 않게 낮게)
+// 브금 빠르기: 라운드마다 ROUND_STEP씩 (최대 MAX), 피버 타임은 FEVER만큼 더 (유튜브는 지원하는 배속 중 가까운 값)
+export const TEMPO = { ROUND_STEP: 0.05, MAX: 1.15, FEVER: 0.1 };
 export const TOUCH_BOOST = 1.6;          // 휴대폰, 태블릿은 스피커가 작아 전체 소리를 키움 (리미터로 찢어짐 방지)
 
 // 광고판: Mortals Log의 공연, 앨범을 랜덤사용

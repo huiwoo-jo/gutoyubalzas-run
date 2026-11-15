@@ -18,6 +18,7 @@ const now = { id: '', title: '' };   // 지금 틀고 있는 곡
 let played = [];         // 이번 판에 나온 곡 { id, title }
 let recording = false;   // 플레이 중에만 기록
 let fadeTimer = 0;
+let rate = 1;            // 원하는 빠르기 (유튜브가 지원하는 가까운 배속으로)
 
 export const playedSongs = () => played;
 
@@ -42,6 +43,19 @@ export function fadeOutBgm(ms = 2000) {
 // 일시정지, 다시 시작 (게임 중에만)
 export function pauseBgm() {
   if (player && ready) player.pauseVideo();
+}
+
+// 빠르기 (라운드, 피버 타임): 유튜브는 배속이 듬성듬성(1, 1.25 …)이라 원하는 값 + 0.15 이하 중 가장 빠른 배속
+// (1.1배 이상이면 1.25배, 그 아래는 1배)
+export function setBgmRate(r) {
+  rate = r;
+  applyRate();
+}
+function applyRate() {
+  if (!player || !ready) return;
+  const rates = player.getAvailablePlaybackRates?.() || [1];
+  const pick = Math.max(1, ...rates.filter(v => v <= rate + 0.15));
+  if (player.getPlaybackRate?.() !== pick) player.setPlaybackRate(pick);
 }
 
 export function resumeBgm() {
@@ -81,6 +95,7 @@ function onStateChange(e) {
     ids = player.getPlaylist() || [];
     if (wantPlay) { wantPlay = false; playRandom(); }
   } else if (e.data === PLAYING) {
+    applyRate();   // 새 곡은 1배속으로 시작해서 다시 적용
     failures = 0;
     const title = player.getVideoData().title || '';
     if (recording && title && title !== now.title) played.push({ id: now.id, title });   // 일시정지 후 재개는 다시 넣지 않음

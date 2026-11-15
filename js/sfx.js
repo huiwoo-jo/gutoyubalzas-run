@@ -87,6 +87,7 @@ if (IS_TOUCH) fetch(url('game_bgm'))   // PC는 유튜브 브금이라 받지 �
   .catch(err => console.warn('게임 브금을 불러오지 못했어요', err));
 
 let gameFade = 0;   // 진행 중인 페이드 아웃 (새로 재생하면 취소)
+let gameRate = 1;   // 게임 브금 빠르기
 export function playGameBgm() {
   gameBgmWanted = true;
   clearTimeout(gameFade);
@@ -97,6 +98,7 @@ export function playGameBgm() {
   gameBgmSrc = ctx.createBufferSource();
   gameBgmSrc.buffer = gameBgmBuf;
   gameBgmSrc.loop = true;
+  gameBgmSrc.playbackRate.value = gameRate;
   gameBgmSrc.connect(gameBgmOut);
   gameBgmSrc.start(0, gameBgmOffset % gameBgmBuf.duration);
   gameBgmAt = ctx.currentTime;
@@ -142,3 +144,8 @@ export function fadeOutGameBgm(ms = 800) {
   gameFade = setTimeout(stopGameBgm, ms);
 }
 
+// 게임 브금 빠르기 (라운드, 피버 타임), 0.5초에 걸쳐 바꿈
+export function setGameBgmRate(rate) {
+  gameRate = rate;
+  if (gameBgmSrc) gameBgmSrc.playbackRate.setTargetAtTime(rate, ctx.currentTime, 0.15);
+}
