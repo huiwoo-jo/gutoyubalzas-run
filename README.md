@@ -115,6 +115,6 @@ python3 serve.py
 | --- | --- |
 | 출연 | 천진우와 구토유발자들 ([@gutoyubalzas](https://www.instagram.com/gutoyubalzas/)): 천진우 [@1000_jinwoo](https://www.instagram.com/1000_jinwoo/), 기토 [@_guitae](https://www.instagram.com/_guitae/), 법영이(한효빈) [@beob_young](https://www.instagram.com/beob_young/), 양동훈 [@yadohoo](https://www.instagram.com/yadohoo/), 리장단 [@leejangdan](https://www.instagram.com/leejangdan/) |
 | 게임 개발 | 눈사람 ([카카오톡 오픈채팅](https://open.kakao.com/o/sButobqi)) |
-| 타이틀 음악, 효과음 | 권주부 |
+| 타이틀 음악, 효과음 | 권주부 ([@hj.gwon.kr](https://www.instagram.com/hj.gwon.kr/))|
 | 캐릭터, 그래픽 디자인 | 광순 ([@_gwangsun](https://www.instagram.com/_gwangsun/)) |
 | 게임 중 음악 | 천진우 유튜브 음원 (유튜브 플레이어로 재생) |
