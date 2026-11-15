@@ -1,12 +1,12 @@
 // 화면 그리기 (state 읽기 전용, 점수 팝업 정리만 예외)
 import {
   W, H, GROUND_Y, SPEED, PANEL_ORDER, BG_PARALLAX, GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT,
-  MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, RANK_STORE, MEMBERS,
+  MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, MEMBERS,
   OBSTACLES, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist } from './game.js';
-import { loadRanking } from './storage.js';
+import { loadRanking, loadMyBest } from './storage.js';
 import { nameFormOpen } from './input.js';
 import { playedSongs, shownSongs } from './bgm.js';
 import { adFor } from './ads.js';
@@ -270,10 +270,11 @@ function drawHud() {
   }
   ctx.globalAlpha = 1;
 
-  const best = loadRanking()[0];
-  if (best) {
+  // 전체 1위, 내 최고 기록 (서버)
+  const best = loadRanking()[0], mine = loadMyBest();
+  const b = [best && 'BEST ' + best.score.toLocaleString(), mine && 'MY ' + mine.score.toLocaleString()].filter(Boolean).join('   ');
+  if (b) {
     ctx.textAlign = 'left'; ctx.font = 'bold 20px sans-serif';   // 오른쪽 위는 브금 플레이어 자리
-    const b = 'BEST ' + best.score.toLocaleString();
     ctx.strokeText(b, 24, 176); ctx.fillStyle = '#ddd'; ctx.fillText(b, 24, 176);
   }
   // 점수 팝업 (1초 동안 떠오름)
@@ -377,10 +378,9 @@ function drawGameOver() {
     return;
   }
   if (r.autoUsed) drawText('자동 플레이 기록은 랭킹에 저장되지 않아요', 270, 22, '#aaa');
-  else if (r.rank) {
-    const where = r.rank > RANK_STORE ? `${RANK_STORE}위 밖` : `${r.rank}위`;
-    drawText(`${r.name} · ${where} 등록!` + (r.saved ? '' : ' (이 브라우저에 저장 실패)'), 270, 26, '#7ef');
-  }
+  else if (r.saving) drawText('랭킹 등록 중...', 270, 26, '#7ef');
+  else if (r.rank) drawText(`${r.name} · ${r.rank}위 등록!`, 270, 26, '#7ef');
+  else if (r.name && !r.saved) drawText('랭킹 서버에 저장하지 못했어요', 270, 26, '#f77');
   const songs = playedSongs().length > 0;
   drawRanking(songs ? W / 2 - 190 : W / 2, 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
   if (songs) drawSongs(SONGS_X, SONGS_Y, RANK_SHOW);

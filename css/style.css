@@ -43,8 +43,9 @@ html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-
 
 #nameForm {
   position: absolute; transform: translate(-50%, -50%);   /* 위치: main.js fit() */
-  display: none; gap: 8px; font: bold 20px sans-serif;
+  display: none; flex-wrap: wrap; justify-content: center; gap: 8px; font: bold 20px sans-serif;
 }
+#nameForm .nameNote { flex-basis: 100%; margin: 2px 0 0; text-align: center; font-size: 13px; font-weight: normal; color: #ccc; text-shadow: 1px 1px 0 #000; }
 
 #nameForm input {
   width: 180px; padding: 10px 12px; font: inherit; text-align: center;
@@ -115,3 +116,34 @@ dialog .howto b { margin-right: 4px; color: #ffd34d; }
 dialog .members { list-style: none; padding: 0; }
 dialog .members li { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
 dialog .members canvas { width: 28px; height: 28px; }
+
+/* 랭킹 창 */
+dialog .tabs { display: flex; gap: 6px; margin-bottom: 6px; }
+dialog #rankNote { margin: 0 0 8px; }
+dialog .tabs button {
+  padding: 4px 14px; font: bold 14px sans-serif; cursor: pointer;
+  border: 2px solid #555; background: #111; color: #aaa;
+}
+dialog .tabs button[aria-selected="true"] { border-color: #ffd34d; background: #ffd34d; color: #111; }
+dialog .rank { min-width: min(420px, 80vw); margin: 0; padding: 0; list-style: none; }
+dialog .rank li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px dashed #333; }
+dialog .rank li:first-child { border-top: 0; }
+dialog .rank .no { width: 1.8em; flex: none; text-align: center; font-weight: bold; color: #aaa; }
+dialog .rank .top1 .no { color: #111; background: #ffd34d; }
+dialog .rank .top2 .no { color: #111; background: #ccc; }
+dialog .rank .top3 .no { color: #111; background: #d08a4a; }
+dialog .rank .top1 .name { color: #ffd34d; }
+dialog .rank .info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+dialog .rank .name { font-weight: bold; }
+dialog .rank .meta { font-size: 12px; color: #888; }
+dialog .rank .round { flex: none; padding: 1px 6px; font-size: 12px; font-weight: bold; border: 1px solid #ffd34d; color: #ffd34d; }
+dialog .rank .score { flex: none; font-weight: bold; }
+dialog .rank li.msg { justify-content: center; color: #aaa; }
+
+/* 기록 저장 안내 */
+dialog .lines { padding-left: 1.1em; font-size: 14px; }
+dialog .lines li { margin: 3px 0; }
+button.link { padding: 0; border: 0; background: none; font: inherit; color: #f9c; text-decoration: underline; cursor: pointer; }
+dialog .privacyLink { margin: 10px 0 0; text-align: right; }
+
+#nameForm .nameNote button.link { padding: 0; border: 0; background: none; color: #f9c; font: inherit; }   /* 등록 버튼 스타일 덮어쓰기 */
