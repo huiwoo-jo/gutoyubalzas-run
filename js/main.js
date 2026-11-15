@@ -26,7 +26,16 @@ function fit() {
   nameForm.style.left = left + cw / 2 + 'px';        // 이름 입력칸은 게임 화면 60% 높이
   nameForm.style.top = top + ch * 0.6 + 'px';
 }
-addEventListener('resize', fit);
+// 휴대폰 회전: 회전 직후 창 크기가 이전 값으로 오는 브라우저(iOS Safari 등)가 있어 자리 잡은 뒤 한 번 더
+function refit() {
+  fit();
+  requestAnimationFrame(fit);
+  setTimeout(fit, 350);
+}
+addEventListener('resize', refit);
+addEventListener('orientationchange', refit);
+screen.orientation?.addEventListener('change', refit);
+visualViewport?.addEventListener('resize', refit);   // 주소창이 접히고 펴질 때
 fit();
 
 let last = performance.now();
