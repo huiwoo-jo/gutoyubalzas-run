@@ -6,6 +6,7 @@ import { render } from './render.js';
 import { showTitle, syncSongLinks, syncTicketLink } from './input.js';
 import { syncBgmCard } from './bgm.js';
 import { loadAds } from './ads.js';
+import { refreshRanking } from './storage.js';
 
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
@@ -39,7 +40,8 @@ function loop(now) {
 }
 requestAnimationFrame(loop);
 
-loadAds();   // 광고판 (실패해도 게임 진행)
+loadAds();          // 광고판 (실패해도 게임 진행)
+refreshRanking();   // 서버 랭킹 (실패해도 게임 진행)
 loadAssets()
   .then(showTitle)
   .catch(err => { state.errorMsg = err.message; state.scene = 'error'; console.error(err); });

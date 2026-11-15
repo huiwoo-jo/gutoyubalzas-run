@@ -5,7 +5,7 @@ import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
   GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
-  OBSTACLES, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
+  OBSTACLES, PX_PER_M, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
 import { addRanking } from './storage.js';
 import { playSfx, stopSfx } from './sfx.js';
@@ -219,15 +219,17 @@ function gameOver() {
   playSfx('gameover');
   const final = Math.floor(state.score);
   state.lastResult = { score: final, rank: 0, name: '', saved: true, autoUsed: state.autoUsed,
-    canRank: !state.autoUsed && final > 0 };
+    canRank: !state.autoUsed && final > 0,
+    round: state.round, distance: Math.floor(state.dist / PX_PER_M), notes: state.noteCount };
   hooks.onGameOver(state.lastResult);
 }
 
 // 입력한 이름으로 랭킹 등록
-export function registerScore(name) {
+export async function registerScore(name) {
   const r = state.lastResult;
-  if (!r || !r.canRank || r.rank) return;
-  Object.assign(r, addRanking(name, r.score), { name });
+  if (!r || !r.canRank || r.rank || r.saving) return;
+  Object.assign(r, { name, saving: true });
+  Object.assign(r, await addRanking(name, r), { saving: false });
 }
 
 // 선두 몸통과 겹치는지 (음표, 하트 먹기)

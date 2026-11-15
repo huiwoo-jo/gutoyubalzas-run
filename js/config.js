@@ -55,9 +55,10 @@ export const NEAR_MISS_SCORE = 30;
 
 // 저장
 // TODO: 현재는 로컬 환경에서만 저장됨
-export const RANK_KEY = 'gutoRun.ranking.v1', NAME_KEY = 'gutoRun.name';
+export const NAME_KEY = 'gutoRun.name';       // 마지막 입력 이름 (브라우저)
+export const PLAYER_KEY = 'gutoRun.player';   // 내 기록용 무작위 ID (브라우저)
 export const RANK_SHOW = 5;              // 게임 오버 화면에 보여 줄 순위 수
-export const RANK_STORE = 10;           // 보관할 기록 수
+export const RANK_STORE = 10;           // 서버에서 받아 올 상위 기록 수
 
 // 멤버별 캐릭터 및 우웩이 (common: 시작 화면 악기, play: 합류 카드의 악기 든 모습)
 export const MEMBERS = [
