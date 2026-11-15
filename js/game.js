@@ -5,7 +5,7 @@ import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
   GATHER_LENGTH, FEVER_LENGTH, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
-  OBSTACLES, PX_PER_M, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
+  OBSTACLES, PX_PER_M, TEMPO, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
 import { addRanking } from './storage.js';
 import { playSfx, stopSfx } from './sfx.js';
@@ -50,6 +50,8 @@ export const state = {
 // 달리기 선두: 캐릭터 달리기는 고른 멤버, 5인 달리기는 천진우
 export const leaderMember = () => MEMBERS.find(m => m.id === state.solo) || MEMBERS[0];
 export const runMode = () => state.solo || 'crew';   // 랭킹 모드 ('crew' 또는 멤버 id)
+// 브금 빠르기 (1 = 원래 속도)
+export const bgmTempo = () => Math.min(TEMPO.MAX, 1 + (state.round - 1) * TEMPO.ROUND_STEP) + (state.phase === 'fever' ? TEMPO.FEVER : 0);
 
 // 시작 연출: 선두 멤버 등장 후 reset()으로 출발 (solo: 캐릭터 달리기 멤버 id, 없으면 5인 달리기)
 export function startIntro(solo = null) {
@@ -59,8 +61,8 @@ export function startIntro(solo = null) {
   playSfx(solo ? 'join_' + solo : 'intro_crew');   // 등장 연출: 캐릭터 달리기는 그 멤버 합류음
 }
 
-// 알림: 새 판 시작, 넘어짐(마지막 충돌), 게임 오버, 멤버 합류 (input.js에서 처리)
-export const hooks = { onReset() {}, onFall() {}, onGameOver() {}, onJoin() {} };
+// 알림: 새 판 시작, 넘어짐(마지막 충돌), 게임 오버, 멤버 합류, 구간 바뀜(피버, 라운드) (input.js에서 처리)
+export const hooks = { onReset() {}, onFall() {}, onGameOver() {}, onJoin() {}, onPhase() {} };
 
 export function reset() {
   Object.assign(state, {
@@ -159,6 +161,7 @@ function startFever() {
     nextNoteAt: state.dist + 300, flashAt: performance.now(),
   });
   addPopup('FEVER TIME! 음표 ×' + FEVER_NOTE_MULT, '#ff6bd5');
+  hooks.onPhase();
 }
 
 function endFever() {
@@ -173,6 +176,7 @@ function endFever() {
     });
     addPopup(state.solo ? `ROUND ${state.round}` : `ROUND ${state.round} · 다시 모으자!`, '#ffd34d');
   }
+  hooks.onPhase();
 }
 
 // ===== 장애물, 음표, 하트 =====
