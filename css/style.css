@@ -245,3 +245,23 @@ dialog .pager button {
 }
 dialog .pager button:disabled { opacity: .3; cursor: default; }
 dialog .rank + .rank li:first-child { border-top: 1px dashed #333; }   /* 한 쪽에 다 보일 때 묶음 사이 줄 */
+
+/* 달리기 모드 선택 */
+#modeDialog { width: min(720px, 92vw); }   /* 내용 너비로 줄어들지 않게 */
+#modeDialog .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+#modeDialog .memberPicks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+#modeDialog .modePick, #modeDialog .memberPick {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px; cursor: pointer;
+  border: 2px solid #555; background: #1a1a1a; color: #fff; font: inherit; text-align: center;
+}
+#modeDialog .modePick:hover, #modeDialog .memberPick:hover, #modeDialog .modePick:focus-visible, #modeDialog .memberPick:focus-visible { border-color: #ffd34d; outline: none; }
+#modeDialog .modePick b, #modeDialog .memberPick b { color: #ffd34d; }
+#modeDialog .modePick span { font-size: .85em; color: #aaa; }
+#modeDialog .modePick canvas { width: 100%; height: clamp(48px, 12vh, 96px); height: clamp(48px, 12dvh, 96px); }
+#modeDialog .memberPick canvas { width: 100%; height: clamp(56px, 16vh, 120px); height: clamp(56px, 16dvh, 120px); }
+#modeDialog .small { margin: 0 0 8px; }
+dialog form button.back { margin-right: auto; border-color: #555; background: #111; color: #ffd34d; }
+@media (max-width: 520px) { #modeDialog .memberPicks { grid-template-columns: repeat(3, 1fr); } }
+
+/* 랭킹: 캐릭터 달리기 멤버 우웩이 */
+dialog .rank .runner { flex: none; width: 22px; height: 22px; }

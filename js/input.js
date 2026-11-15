@@ -1,6 +1,6 @@
 // 입력: 키보드, 터치 조작과 랭킹 이름 입력
-import { state, reset, jump, hooks, startIntro, registerScore } from './game.js';
-import { loadName, saveName, refreshRanking, fetchRanking } from './storage.js';
+import { state, reset, jump, hooks, startIntro, registerScore, runMode } from './game.js';
+import { loadName, saveName, refreshRanking, fetchRanking, groupOf } from './storage.js';
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, shownSongs, songUrl } from './bgm.js';
 import { playTitleBgm, stopTitleBgm, pauseTitleBgm, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
@@ -47,7 +47,7 @@ hooks.onJoin = showJoinCard;
 hooks.onGameOver = result => {
   fadeOutBgm();   // 브금은 서서히 줄이고, 목록은 게임 오버 전까지 들은 곡만
   if (IS_TOUCH) stopTitleBgm();   // 게임 오버 효과음 뒤 다시 (sfx.js)
-  refreshRanking();   // 그사이 다른 사람 기록 반영
+  refreshRanking(groupOf(runMode()));   // 이번 모드 랭킹, 그사이 다른 사람 기록 반영
   if (result.canRank) showNameForm();
 };
 
@@ -145,9 +145,11 @@ function drawHowto() {
     const x0 = (c.width - cell * names.length) / 2;
     g.imageSmoothingEnabled = false;
     if ('squash' in c.dataset) { g.translate(0, c.height); g.scale(1.25, 0.6); g.translate(-c.width * 0.1, -c.height); }
-    names.forEach((n, i) => drawFit(g, n, x0 + cell * i, 0, cell, c.height));
+    const scale = names.length > 1 ? 0.7 : 1;
+    names.forEach((n, i) => drawFit(g, n, x0 + cell * i, 0, cell, c.height, scale));
   }
 }
+
 document.getElementById('rankBtn').addEventListener('click', openRanking);
 // 다른 창 위에 겹쳐 열기 (기록 저장 안내)
 document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => showDialog(b.dataset.open)));
@@ -156,7 +158,10 @@ document.getElementById('infoBtn').addEventListener('click', () => { showDialog(
 
 // 랭킹 창: 오늘, 전체 탭 (열거나 탭을 바꿀 때마다 서버에서 받기)
 const rankTabs = document.querySelectorAll('#rankDialog [data-period]');
+const groupTabs = document.querySelectorAll('#rankDialog [data-group]');
+let rankPeriod = 'all', rankGroup = 'crew';   // 랭킹 창 기간, 모드 (5인, 캐릭터)
 rankTabs.forEach(b => b.addEventListener('click', () => showRanking(b.dataset.period)));
+groupTabs.forEach(b => b.addEventListener('click', () => { rankGroup = b.dataset.group; showRanking(rankPeriod); }));
 
 function openRanking() {
   showDialog('rankDialog');
@@ -171,13 +176,16 @@ const RANK_NOTE = {
 };
 
 async function showRanking(period) {
+  rankPeriod = period;
   rankTabs.forEach(b => b.setAttribute('aria-selected', b.dataset.period === period));
+  groupTabs.forEach(b => b.setAttribute('aria-selected', b.dataset.group === rankGroup));
   document.getElementById('rankNote').textContent = RANK_NOTE[period]();
   const list = document.getElementById('rankList');
   const msg = text => { list.innerHTML = ''; const ol = document.createElement('ol'); ol.className = 'rank'; const li = document.createElement('li'); li.className = 'msg'; li.textContent = text; ol.append(li); list.append(ol); paginate(document.getElementById('rankDialog')); };
   msg('불러오는 중');
-  const rows = await fetchRanking(period);
-  if (!document.querySelector(`#rankDialog [data-period="${period}"][aria-selected="true"]`)) return;   // 그사이 탭 바뀜
+  const group = rankGroup;
+  const rows = await fetchRanking(period, group);
+  if (period !== rankPeriod || group !== rankGroup) return;   // 그사이 탭 바뀜
   if (!rows) return msg('랭킹을 불러오지 못했어요');
   if (!rows.length) return msg({ today: '오늘 기록이 아직 없어요', mine: '등록한 기록이 아직 없어요' }[period] || '아직 기록이 없어요');
   list.innerHTML = '';
@@ -188,6 +196,7 @@ async function showRanking(period) {
     list.append(ol);
   }
   paginate(document.getElementById('rankDialog'));
+  drawHowto();   // 캐릭터 달리기 멤버 우웩이
 }
 
 // 한 줄: 순위, 이름과 기록(거리, 음표, 날짜), 라운드, 점수
@@ -198,7 +207,13 @@ function rankRow(r, rank) {
   info.append(el('span', 'name', r.name));   // 다른 사람이 쓴 이름이라 textContent로
   const meta = [r.distance != null && `${r.distance.toLocaleString()}m`, r.notes != null && `♪ ${r.notes}`, ymd(new Date(r.created_at))].filter(Boolean);
   info.append(el('span', 'meta', meta.join(' · ')));
-  li.append(el('span', 'no', rank), info);
+  li.append(el('span', 'no', rank));
+  if (r.mode && r.mode !== 'crew') {   // 캐릭터 달리기: 달린 멤버
+    const c = el('canvas', 'runner');
+    c.dataset.pics = 'uwek_' + r.mode;
+    li.append(c);
+  }
+  li.append(info);
   if (r.round) li.append(el('span', 'round', `ROUND ${r.round}`));
   li.append(el('span', 'score', r.score.toLocaleString()));
   return li;
@@ -222,9 +237,31 @@ function onStart(e) {
   return x >= START_BTN.x && x <= START_BTN.x + START_BTN.w && y >= START_BTN.y && y <= START_BTN.y + START_BTN.h;
 }
 
+// START: 달리기 모드 선택 창 (5인 달리기, 캐릭터 달리기 → 멤버 선택)
+const modeDialog = document.getElementById('modeDialog');
+const modeBack = modeDialog.querySelector('.back');
+function showModeView(view) {
+  modeDialog.querySelectorAll('.modeView').forEach(v => { v.hidden = v.dataset.view !== view; });
+  modeBack.hidden = view !== 'members';
+  drawHowto();
+}
 function start() {
+  showDialog('modeDialog');
+  showModeView('modes');
+}
+modeDialog.querySelectorAll('.modePick').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.mode === 'crew') run(null);
+  else showModeView('members');
+}));
+modeDialog.querySelectorAll('.memberPick').forEach(b => b.addEventListener('click', () => run(b.dataset.solo)));   // 합류음은 startIntro에서
+modeBack.addEventListener('click', () => showModeView('modes'));
+
+// 고른 모드로 출발 (solo: 멤버 id, null이면 5인 달리기)
+function run(solo) {
+  modeDialog.close();
   if (!IS_TOUCH) stopTitleBgm();
-  playBgm(); startIntro();
+  refreshRanking(solo ? 'solo' : 'crew');   // 플레이 중 BEST, MY도 이 모드 기준
+  playBgm(); startIntro(solo);
 }
 
 // 창을 벗어나면 일시정지 (다른 창 클릭, 탭 전환)
