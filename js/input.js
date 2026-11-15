@@ -2,7 +2,7 @@
 import { state, reset, jump, hooks, startIntro, registerScore, runMode } from './game.js';
 import { loadName, saveName, refreshRanking, fetchRanking, groupOf } from './storage.js';
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, shownSongs, songUrl } from './bgm.js';
-import { playTitleBgm, stopTitleBgm, pauseTitleBgm, stopSfx } from './sfx.js';
+import { playTitleBgm, stopTitleBgm, pauseTitleBgm, playGameBgm, stopGameBgm, pauseGameBgm, fadeOutGameBgm, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
@@ -40,13 +40,16 @@ function hideNameForm() {
 
 hooks.onReset = () => {
   hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover');
-  if (IS_TOUCH) playTitleBgm();   // 터치 기기는 플레이 중에도 타이틀 브금
-  else stopTitleBgm();
+  stopTitleBgm();                    // 게임 오버 후 다시 하기: 타이틀 브금 끄기
+  if (IS_TOUCH) playGameBgm();       // 터치 기기는 플레이 브금 (PC는 유튜브)
 };
 hooks.onJoin = showJoinCard;
-hooks.onGameOver = result => {
-  fadeOutBgm();   // 브금은 서서히 줄이고, 목록은 게임 오버 전까지 들은 곡만
-  if (IS_TOUCH) stopTitleBgm();   // 게임 오버 효과음 뒤 다시 (sfx.js)
+// 마지막 충돌: 브금을 먼저 줄여 타격음, 게임 오버음과 겹치지 않게 (목록은 여기까지 들은 곡만)
+hooks.onFall = () => {
+  fadeOutBgm(800);
+  if (IS_TOUCH) fadeOutGameBgm(800);
+};
+hooks.onGameOver = result => {   // 게임 오버음 뒤 타이틀 브금 (sfx.js)
   refreshRanking(groupOf(runMode()));   // 이번 모드 랭킹, 그사이 다른 사람 기록 반영
   if (result.canRank) showNameForm();
 };
@@ -226,6 +229,7 @@ function goHome() {
   fadeOutBgm(300);
   stopSfx('slide');
   stopSfx('gameover');
+  stopGameBgm();
   hideJoinCard();
   showTitle();
 }
@@ -259,25 +263,29 @@ modeBack.addEventListener('click', () => showModeView('modes'));
 // 고른 모드로 출발 (solo: 멤버 id, null이면 5인 달리기)
 function run(solo) {
   modeDialog.close();
-  if (!IS_TOUCH) stopTitleBgm();
+  stopTitleBgm();
   refreshRanking(solo ? 'solo' : 'crew');   // 플레이 중 BEST, MY도 이 모드 기준
   playBgm(); startIntro(solo);
 }
 
 // 창을 벗어나면 일시정지 (다른 창 클릭, 탭 전환)
 function pauseGame() {
+  if (state.scene === 'title') return pauseTitleBgm();   // 시작 화면: 타이틀 브금만 멈춤 (돌아오면 다시)
+
   if (state.scene !== 'play' || state.paused) return;
   state.paused = true;
   state.slideHeld = false;
   stopSfx('slide');
   pauseBgm();
-  if (IS_TOUCH) pauseTitleBgm();
+  if (IS_TOUCH) pauseGameBgm();
 }
 
 function resumeGame() {
+  if (state.scene === 'title') return playTitleBgm();
+
   state.paused = false;
   resumeBgm();
-  if (IS_TOUCH) playTitleBgm();
+  if (IS_TOUCH) playGameBgm();
 }
 
 addEventListener('blur', pauseGame);
@@ -322,7 +330,8 @@ guide.addEventListener('click', async () => {
     await screen.orientation?.lock?.('landscape');
   } catch { /* 지원 안 하는 브라우저는 그대로 */ }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); else if (state.scene === 'title') resumeGame(); });
+addEventListener('focus', () => { if (state.scene === 'title') resumeGame(); });   // 시작 화면은 돌아오면 바로 다시 (플레이 중은 눌러서 다시)
 
 // Space, 탭: 장면에 따라 다시 하기, 점프 (시작 화면은 START 버튼으로만 시작)
 function press() {
