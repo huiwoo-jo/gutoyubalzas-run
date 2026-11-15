@@ -1,7 +1,6 @@
 // 광고판: Mortals Log의 가장 가까운 공연, 구매 가능한 앨범을 빈 벽(bg_far1)에 랜덤 배치
 import { SITE_URL } from './config.js';
-
-let SUPABASE_URL = '', SUPABASE_KEY = '';   // js/env.js 값 (loadAds)
+import { sb, sbReady, storageUrl } from './supabase.js';
 
 let concert = null;   // 가장 가까운 공연: 없으면 null
 let albums = [];      // 구매 링크가 있는 앨범
@@ -11,8 +10,6 @@ let last = { round: -1, ad: false, kind: '' };
 
 const ALBUM_KIND = { LP: '정규', EP: 'EP', SP: '싱글', LV: '라이브 앨범', VN: '바이닐' };
 const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
-
-const storageUrl = path => `${SUPABASE_URL}/storage/v1/object/public/images/${path.split('/').map(encodeURIComponent).join('/')}`;
 
 function loadImage(url) {
   if (!url) return null;
@@ -38,17 +35,10 @@ const localToday = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-async function get(path) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: { apikey: SUPABASE_KEY } });
-  if (!res.ok) throw new Error(`${res.status} ${path.split('?')[0]}`);
-  return res.json();
-}
+const get = path => sb(path).then(r => r.json());
 
 export async function loadAds() {
-  const env = await import('./env.js').catch(() => ({}));
-  SUPABASE_URL = (env.SUPABASE_URL || '').replace(/\/$/, '');
-  SUPABASE_KEY = env.SUPABASE_KEY || '';
-  if (!SUPABASE_URL || !SUPABASE_KEY) { console.warn('SUPABASE_URL·KEY가 없어 광고판 없이 진행합니다.'); return; }
+  if (!(await sbReady)) { console.warn('SUPABASE_URL·KEY가 없어 광고판 없이 진행합니다.'); return; }
   const today = localToday();
 
   try {
