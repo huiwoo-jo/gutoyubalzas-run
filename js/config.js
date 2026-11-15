@@ -30,8 +30,8 @@ export const HEART_CHANCE = 0.15;        // 하트가 모자랄 때 장애물 �
 export const HEART_Y = 160;              // 회복 하트 높이
 
 // 캐릭터
-export const CHAR_SCALE = 0.12;          // 1536×2048 캐릭터: 실제 몸 높이 약 140px
-export const CHAR_FOOT = 1640;           // 원본 캔버스에서 발 끝 y
+export const CHAR_SCALE = 0.48;          // 384×512 캐릭터: 실제 몸 높이 약 140px
+export const CHAR_FOOT = 410;            // 원본 캔버스에서 발 끝 y
 export const RUN_FRAMES = 3;             // 달리기 프레임 수 (멤버_run1~3)
 export const RUN_FPS = 9;                // 시작 속도일 때 달리기 애니메이션 속도 (빨라지면 같이 빨라짐)
 export const LEADER_X = 560, GAP = 95;   // 선두 위치, 멤버 간격
@@ -87,6 +87,7 @@ export const BGM_VOLUME = 50;            // 0~100
 // 효과음, 타이틀 브금 (assets/sounds)
 export const SFX_VOLUME = 0.9;           // 0~1
 export const TITLE_BGM_VOLUME = 0.35;    // 0~1 (효과음이 묻히지 않게 낮게)
+export const TOUCH_BOOST = 1.6;          // 휴대폰, 태블릿은 스피커가 작아 전체 소리를 키움 (리미터로 찢어짐 방지)
 
 // 광고판: Mortals Log의 공연, 앨범을 랜덤사용
 export const SITE_URL = 'https://mortals-log.vercel.app';

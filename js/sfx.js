@@ -1,15 +1,23 @@
 // 효과음, 타이틀 브금 (assets/sounds)
 // 효과음은 Web Audio: 처음에 한 번 받아 디코딩, 지연 없이 재생하고 겹쳐도 끊기지 않음
-import { SFX_VOLUME, TITLE_BGM_VOLUME } from './config.js';
+import { SFX_VOLUME, TITLE_BGM_VOLUME, TOUCH_BOOST, IS_TOUCH } from './config.js';
 
 const SFX = ['jump', 'slide', 'gameover', 'eat', 'join_gito', 'join_beobyoung', 'join_donghun', 'join_jangdan'];
 const ONE_AT_A_TIME = new Set(['jump', 'slide', 'gameover']);   // 다시 나면 앞 소리 끊기
 
 const url = name => `assets/sounds/${name}.m4a`;
+// iOS: 게임 소리로 재생 (무음 모드, 낮은 음량 영향 줄이기, 지원하는 Safari만)
+if (navigator.audioSession) navigator.audioSession.type = 'playback';
+
 const ctx = new AudioContext();
+const boost = IS_TOUCH ? TOUCH_BOOST : 1;
+// 리미터: 소리를 키워도 겹칠 때 찢어지지 않게
+const master = ctx.createDynamicsCompressor();
+master.threshold.value = -3; master.knee.value = 0; master.ratio.value = 20; master.attack.value = 0.003; master.release.value = 0.1;
+master.connect(ctx.destination);
 const out = ctx.createGain();
-out.gain.value = SFX_VOLUME;
-out.connect(ctx.destination);
+out.gain.value = SFX_VOLUME * boost;
+out.connect(master);
 
 const buffers = {};   // 이름: 디코딩된 소리
 const playing = {};   // 이름: 재생 중인 소리 (ONE_AT_A_TIME만)
@@ -46,8 +54,8 @@ export function stopSfx(name) {
 
 // 타이틀 브금: Web Audio로 반복 (iOS는 오디오 태그 볼륨을 무시해 효과음보다 크게 들림)
 const titleOut = ctx.createGain();
-titleOut.gain.value = TITLE_BGM_VOLUME;
-titleOut.connect(ctx.destination);
+titleOut.gain.value = TITLE_BGM_VOLUME * boost;
+titleOut.connect(master);
 let titleBuf = null, titleSrc = null, titleAt = 0, titleOffset = 0, titleWanted = false;
 fetch(url('title_bgm_icecream'))
   .then(r => r.arrayBuffer())
