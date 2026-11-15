@@ -37,6 +37,7 @@ export const state = {
   autoUsed: false,
   invincibleUntil: 0,
   flashAt: -1e9,          // 구간이 바뀔 때 화면 번쩍임
+  hintAt: -1e9,           // START 후 조작 안내 시작 시각 (render.js)
   popups: [],
   introStart: 0,
   fallTime: 0,
@@ -243,7 +244,7 @@ export function update(dt) {
   if (state.paused) return;
   const now = performance.now();
   if (state.scene === 'title' && state.auto) reset();
-  if (state.scene === 'intro' && now - state.introStart > INTRO_MS) { reset(); state.flashAt = now; }
+  if (state.scene === 'intro' && now - state.introStart > INTRO_MS) { reset(); state.flashAt = now; state.hintAt = now; }
   if (state.scene === 'fall' && now - state.fallTime > 1000) gameOver();
   if (state.scene === 'gameover' && state.auto && now - state.fallTime > 3500) reset();
   if (state.scene !== 'play') return;
