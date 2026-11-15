@@ -1,6 +1,6 @@
 // 이미지 불러오기
 // 불러온 이미지는 IMG[이름]으로 꺼내 사용
-import { W, H, PANELS, CHAR_SCALE, MEMBERS, RUN_FRAMES, HEART_IMG } from './config.js';
+import { W, H, PANELS, CHAR_SCALE, MEMBERS, RUN_FRAMES, HEART_IMG, OBSTACLES } from './config.js';
 
 export const IMG = {};
 
@@ -16,6 +16,7 @@ const assetList = [
   ...Array.from({ length: PANELS }, (_, i) => ['bg_far' + (i + 1), 'backgrounds']),
   ['bg_ground', 'backgrounds'],
   [HEART_IMG, 'uwek'],
+  ...Object.values(OBSTACLES).map(o => [o.img, 'obstacles']),
   ...['background', 'lamp', 'title', 'button'].map(n => [n, 'common']),
 ];
 
@@ -36,6 +37,8 @@ export function loadAssets() {
     img.onload = () => {
       if (dir.startsWith('characters/')) {
         IMG[key] = shrink(img, Math.round(img.width * CHAR_SCALE), Math.round(img.height * CHAR_SCALE));
+      } else if (dir === 'obstacles') {
+        IMG[key] = img;   // 원본 그대로 (그릴 때 OBSTACLES 크기로)
       } else if (dir === 'uwek') {
         IMG[key] = shrink(img, Math.round(img.width * 96 / img.height), 96);
       } else {

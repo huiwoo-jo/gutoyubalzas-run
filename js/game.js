@@ -5,7 +5,7 @@ import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
   GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
-  LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
+  OBSTACLES, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
 import { addRanking } from './storage.js';
 import { playSfx, stopSfx } from './sfx.js';
@@ -146,8 +146,8 @@ function spawnObstacle() {
   const low = Math.random() < 0.55;
   const x = state.dist + W + 40;
   const o = low
-    ? { type: 'jump', x, w: 56, h: 64, minGap: Infinity }                              // 바닥 앰프
-    : { type: 'slide', x, w: 120, top: 0, bottom: GROUND_Y - 95, minGap: Infinity };  // 천장 조명 트러스
+    ? { type: 'jump', x, w: OBSTACLES.jump.w, h: OBSTACLES.jump.h, minGap: Infinity }
+    : { type: 'slide', x, w: OBSTACLES.slide.w, top: 0, bottom: OBSTACLES.slide.h, minGap: Infinity };
   state.obstacles.push(o);
   // 간격은 속도에 비례
   const gap = (speedNow() / SPEED) * (600 + Math.random() * 600);

@@ -35,6 +35,7 @@ python3 serve.py
 | `assets/characters/멤버/` | 멤버별 달리기(`멤버_run1~3`) · 점프(`멤버_jump`) · 악기 든 모습(`멤버_악기`, 합류 카드) |
 | `assets/backgrounds/` | 배경 패널(`bg_far1~11`) · 바닥(`bg_ground`) |
 | `assets/common/` | 시작 화면 (배경, 조명, 로고, START 버튼, 멤버 악기) · 피버 타임 무대 |
+| `assets/obstacles/` | 장애물 이미지 (`amp`: 바닥 앰프, `truss`: 천장 조명 트러스) |
 | `assets/sounds/` | 타이틀 브금(`title_bgm_icecream`), 효과음(`jump`, `slide`, `eat`, `join_멤버`, `gameover`) |
 | `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트, `uwek_all`: 단체) |
 
@@ -89,7 +90,8 @@ python3 serve.py
 아래는 전용 에셋이 없어 코드로 대신 그리고 있습니다. `assets/`에 추가되면 교체합니다.
 
 - 슬라이딩 / 넘어지기: `run1` 이미지를 찌그러뜨리거나 눕혀서 표현
-- 장애물 (앰프, 조명 트러스), 음표
+- 음표
+- 장애물(앰프, 조명 트러스)은 `assets/obstacles/amp.png`, `truss.png` 이미지 파일입니다. 그림만 바꾸려면 png만 교체하고, 크기와 충돌 범위는 `js/config.js`의 `OBSTACLES`에서 바꿉니다.
 
 ## 설정 값
 

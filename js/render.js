@@ -2,7 +2,7 @@
 import {
   W, H, GROUND_Y, SPEED, PANEL_ORDER, BG_PARALLAX, GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT,
   MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, RANK_STORE, MEMBERS,
-  LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
+  OBSTACLES, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist } from './game.js';
@@ -181,18 +181,11 @@ function drawFeverFloor() {
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 }
 
-// 장애물 (임시 도형, 에셋 생기면 교체)
+// 장애물: assets/obstacles 이미지를 충돌 범위 크기로 (config.js OBSTACLES)
 function drawObstacle(o, x) {
-  if (o.type === 'jump') {        // 바닥 앰프
-    ctx.fillStyle = '#222'; ctx.fillRect(x, GROUND_Y - o.h, o.w, o.h);
-    ctx.fillStyle = '#555'; ctx.fillRect(x + 6, GROUND_Y - o.h + 6, o.w - 12, o.h - 12);
-    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(x + o.w / 2, GROUND_Y - o.h / 2, 16, 0, 7); ctx.fill();
-  } else {                        // 천장 조명 트러스
-    ctx.fillStyle = '#222'; ctx.fillRect(x + o.w / 2 - 5, 0, 10, o.bottom - 40);
-    ctx.fillStyle = '#333'; ctx.fillRect(x, o.bottom - 40, o.w, 40);
-    ctx.fillStyle = '#ffd34d';
-    for (let k = 0; k < 3; k++) ctx.fillRect(x + 10 + k * 38, o.bottom - 12, 22, 12);
-  }
+  const { img } = OBSTACLES[o.type];
+  if (o.type === 'jump') ctx.drawImage(IMG[img], x, GROUND_Y - o.h, o.w, o.h);
+  else ctx.drawImage(IMG[img], x, o.top, o.w, o.bottom - o.top);
 }
 
 // 음표 (임시 도트, 4px 도트 9×11칸)
