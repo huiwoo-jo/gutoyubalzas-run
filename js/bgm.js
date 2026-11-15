@@ -1,7 +1,10 @@
 // 브금: 유튜브 공식 임베드 플레이어(IFrame API)로 재생목록에서 랜덤 곡 사용
 // 유튜브 정책상 플레이어는 숨기지 않고 200×200으로 반영
 
-import { BGM_PLAYLIST, BGM_VOLUME } from './config.js';
+import { BGM_PLAYLIST, BGM_VOLUME, IS_TOUCH } from './config.js';
+
+// 터치 기기는 화면이 작아 플레이어가 게임을 가려서 유튜브 대신 타이틀 브금 (sfx.js)
+const USE_YOUTUBE = !!BGM_PLAYLIST && !IS_TOUCH;
 
 const ENDED = 0, PLAYING = 1, CUED = 5;
 const $ = id => document.getElementById(id);
@@ -63,7 +66,7 @@ function playRandom() {
 
 // 게임 시작 시 입력 처리 안에서 호출 (브라우저 자동 재생 정책)
 export function playBgm() {
-  if (!BGM_PLAYLIST) return;
+  if (!USE_YOUTUBE) return;
   played = [];           // 새 판: 브금 기록 비우기
   recording = true;
   if (!ready || !ids.length) { wantPlay = true; return; }
@@ -101,7 +104,7 @@ function onError() {
   if (++failures < 5) playRandom();
 }
 
-export const bgmEnabled = !!BGM_PLAYLIST;
+export const bgmEnabled = USE_YOUTUBE;
 
 // 브금 카드 표시 (게임 중이거나 소리가 날 때만, 매 프레임 호출)
 export function syncBgmCard(inGame) {
@@ -113,7 +116,7 @@ export function syncBgmCard(inGame) {
 }
 
 function init() {
-  if (!BGM_PLAYLIST) return;
+  if (!USE_YOUTUBE) return;
   $('bgmCard').style.display = 'flex';
   $('bgmCard').style.opacity = '0';
   setInterval(updateCard, 500);

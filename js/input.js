@@ -2,11 +2,11 @@
 import { state, reset, jump, hooks, startIntro, registerScore } from './game.js';
 import { loadName, saveName, refreshRanking, fetchRanking } from './storage.js';
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, shownSongs, songUrl } from './bgm.js';
-import { playTitleBgm, stopTitleBgm, stopSfx } from './sfx.js';
+import { playTitleBgm, stopTitleBgm, pauseTitleBgm, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
-import { W, H, RANK_SHOW, RANK_STORE, START_BTN } from './config.js';
+import { W, H, RANK_SHOW, RANK_STORE, START_BTN, IS_TOUCH } from './config.js';
 
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
@@ -17,8 +17,6 @@ const ticketLink = document.getElementById('ticketLink');
 
 export const nameFormOpen = () => nameForm.style.display === 'flex';
 
-// 터치 기기 (휴대폰, 태블릿): 플레이 버튼, 가로 회전 안내
-export const isTouch = matchMedia('(pointer: coarse)').matches;
 
 export function showTitle() {
   state.scene = 'title';
@@ -40,10 +38,15 @@ function hideNameForm() {
   nameInput.blur();
 }
 
-hooks.onReset = () => { hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover'); stopTitleBgm(); };
+hooks.onReset = () => {
+  hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover');
+  if (IS_TOUCH) playTitleBgm();   // 터치 기기는 플레이 중에도 타이틀 브금
+  else stopTitleBgm();
+};
 hooks.onJoin = showJoinCard;
 hooks.onGameOver = result => {
   fadeOutBgm();   // 브금은 서서히 줄이고, 목록은 게임 오버 전까지 들은 곡만
+  if (IS_TOUCH) stopTitleBgm();   // 게임 오버 효과음 뒤 다시 (sfx.js)
   refreshRanking();   // 그사이 다른 사람 기록 반영
   if (result.canRank) showNameForm();
 };
@@ -183,7 +186,8 @@ function onStart(e) {
 }
 
 function start() {
-  stopTitleBgm(); playBgm(); startIntro();
+  if (!IS_TOUCH) stopTitleBgm();
+  playBgm(); startIntro();
 }
 
 // 창을 벗어나면 일시정지 (다른 창 클릭, 탭 전환)
@@ -193,16 +197,18 @@ function pauseGame() {
   state.slideHeld = false;
   stopSfx('slide');
   pauseBgm();
+  if (IS_TOUCH) pauseTitleBgm();
 }
 
 function resumeGame() {
   state.paused = false;
   resumeBgm();
+  if (IS_TOUCH) playTitleBgm();
 }
 
 addEventListener('blur', pauseGame);
 // 플레이 중 세로로 돌리면 일시정지
-matchMedia('(orientation: portrait)').addEventListener('change', e => { if (isTouch && e.matches) pauseGame(); });
+matchMedia('(orientation: portrait)').addEventListener('change', e => { if (IS_TOUCH && e.matches) pauseGame(); });
 
 // 터치 플레이 버튼: 점프, 누르고 있으면 슬라이딩
 const jumpBtn = document.getElementById('jumpBtn'), slideBtn = document.getElementById('slideBtn');
@@ -212,7 +218,7 @@ for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) slideBtn.addEve
 
 // 가로 회전 안내: 처음 한 번, 누르면 닫고 가능하면 전체 화면, 가로 고정 (iOS는 지원 안 함)
 const guide = document.getElementById('rotateGuide');
-if (isTouch) document.body.setAttribute('data-guide', '');
+if (IS_TOUCH) document.body.setAttribute('data-guide', '');
 guide.addEventListener('click', async () => {
   document.body.removeAttribute('data-guide');
   playTitleBgm();   // 첫 터치에 타이틀 브금

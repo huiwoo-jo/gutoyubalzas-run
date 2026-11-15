@@ -1,9 +1,9 @@
 // 시작점: 화면 크기, 에셋 로딩, 게임 루프
-import { W, H } from './config.js';
+import { W, H, IS_TOUCH } from './config.js';
 import { loadAssets } from './assets.js';
 import { state, reset, update } from './game.js';
 import { render } from './render.js';
-import { showTitle, syncSongLinks, syncTicketLink, isTouch } from './input.js';
+import { showTitle, syncSongLinks, syncTicketLink } from './input.js';
 import { syncBgmCard } from './bgm.js';
 import { loadAds } from './ads.js';
 import { refreshRanking } from './storage.js';
@@ -11,7 +11,7 @@ import { refreshRanking } from './storage.js';
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
 const ui = document.getElementById('ui');
-if (isTouch) document.body.setAttribute('data-touch', '');   // 터치 버튼, 회전 안내 (style.css)
+if (IS_TOUCH) document.body.setAttribute('data-touch', '');   // 터치 버튼, 회전 안내 (style.css)
 
 // 비율 유지, 창 가운데에 꽉 차게
 function fit() {
