@@ -25,12 +25,12 @@ function cropOf(img) {
   return { x, y, w: Math.min(img.width, (x1 + 2) * s) - x, h: Math.min(img.height, (y1 + 2) * s) - y };
 }
 
-// 이미지의 그림 영역을 (x, y, w, h) 칸 안에 바닥 맞춰 그리기 (플레이 방법 그림에도 사용)
-export function drawFit(g, name, x, y, w, h) {
+// 이미지의 그림 영역을 (x, y, w, h) 칸 바닥에 맞춰 높이 기준으로 그리기 (scale: 칸 높이 대비 크기, 플레이 방법 그림에도 사용)
+export function drawFit(g, name, x, y, w, h, scale = 1) {
   const img = IMG[name];
   if (!img) return;
   const b = crops[name] ||= cropOf(img);
-  const k = Math.min(w / b.w, h / b.h), dw = b.w * k, dh = b.h * k;
+  const k = h * 0.9 * scale / b.h, dw = b.w * k, dh = b.h * k;
   g.drawImage(img, b.x, b.y, b.w, b.h, x + (w - dw) / 2, y + h - dh, dw, dh);
 }
 

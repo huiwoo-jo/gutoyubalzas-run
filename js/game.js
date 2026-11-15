@@ -3,7 +3,7 @@
 // 목숨: 하트 3개 (충돌 시 1개 차감, 하트 아이템으로 1개 회복, 0개면 게임 오버)
 import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
-  GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
+  GATHER_LENGTH, FEVER_LENGTH, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
   OBSTACLES, PX_PER_M, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
@@ -17,10 +17,13 @@ export const state = {
   errorMsg: '',
   auto: new URLSearchParams(location.search).has('auto'), // 테스트용 자동 플레이 (A 키 또는 ?auto)
   slideHeld: false,
+  solo: null,             // 캐릭터 달리기 멤버 id (null이면 5인 달리기)
   paused: false,          // 창을 벗어나면 멈춤 (input.js)
   dist: 0,                // 총 달린 거리
+  speed: SPEED,           // 현재 속도 px/s
   phase: 'gather',
   phaseStart: 0,          // 현재 구간이 시작된 dist
+  mapBase: 0,             // 이번 바퀴에서 중간 피버 전까지 달린 맵 거리
   round: 1,               // 몇 번째 모으기인지
   leader: { y: GROUND_Y, vy: 0, sliding: false },
   crew: [],
@@ -44,10 +47,16 @@ export const state = {
   lastResult: null,
 };
 
-// 시작 연출: 천진우 등장 후 reset()으로 출발
-export function startIntro() {
+// 달리기 선두: 캐릭터 달리기는 고른 멤버, 5인 달리기는 천진우
+export const leaderMember = () => MEMBERS.find(m => m.id === state.solo) || MEMBERS[0];
+export const runMode = () => state.solo || 'crew';   // 랭킹 모드 ('crew' 또는 멤버 id)
+
+// 시작 연출: 선두 멤버 등장 후 reset()으로 출발 (solo: 캐릭터 달리기 멤버 id, 없으면 5인 달리기)
+export function startIntro(solo = null) {
+  state.solo = solo;
   state.scene = 'intro';
   state.introStart = performance.now();
+  if (solo) playSfx('join_' + solo);   // 캐릭터 달리기: 고른 멤버 합류음
 }
 
 // 알림: 새 판 시작, 게임 오버, 멤버 합류 (input.js에서 처리)
@@ -56,12 +65,14 @@ export const hooks = { onReset() {}, onGameOver() {}, onJoin() {} };
 export function reset() {
   Object.assign(state, {
     dist: 0,
+    speed: SPEED,
     phase: 'gather',
     phaseStart: 0,
+    mapBase: 0,
     round: 1,
     leader: { y: GROUND_Y, vy: 0, sliding: false },
-    crew: [{ ...MEMBERS[0], x: LEADER_X }],
-    joined: new Set([MEMBERS[0].id]),
+    crew: [{ ...leaderMember(), x: LEADER_X }],
+    joined: new Set([leaderMember().id]),
     obstacles: [],
     nextObstacleAt: 1400,
     notes: [],
@@ -84,11 +95,26 @@ export function reset() {
 // 현재 구간에서 달린 거리
 export const phaseDist = () => state.dist - state.phaseStart;
 
-// 속도: 첫 모으기 동안 진행만큼, 이후 달린 거리만큼 증가
-export function speedNow() {
+// 이번 바퀴 맵에서 달린 거리 (중간 피버 동안은 멈춤)
+export const mapDist = () => state.mapBase + (state.phase === 'gather' ? phaseDist() : 0);
+
+// 다음 피버 지점: 캐릭터 달리기는 맵을 패널 경계로 나눠 중간 피버, 마지막은 바퀴 끝
+export const midFevers = () => state.solo
+  ? Array.from({ length: SOLO_FEVERS }, (_, k) => Math.round((PANEL_ORDER.length - 1) * (k + 1) / (SOLO_FEVERS + 1)) * W / BG_PARALLAX)
+  : [];
+const nextFeverAt = () => midFevers().find(at => at > state.mapBase) ?? GATHER_LENGTH;
+
+// 목표 속도: 첫 모으기 동안 진행만큼, 이후 달린 거리만큼 증가
+function targetSpeed() {
   const first = SPEED * (1 + SPEED_UP * Math.min(1, state.dist / GATHER_LENGTH));
-  return Math.min(MAX_SPEED, first + Math.max(0, state.dist - GATHER_LENGTH) * LATE_ACCEL);
+  const speed = Math.min(MAX_SPEED, first + Math.max(0, state.dist - GATHER_LENGTH) * LATE_ACCEL);
+  // 피버는 최소 첫 피버 속도 (캐릭터 달리기 중간 피버가 가속 끝나기 전에 와도 똑같이 빠르게)
+  return state.phase === 'fever' ? Math.max(speed, SPEED * (1 + SPEED_UP)) : speed;
 }
+
+// 현재 속도: 목표 속도를 따라 서서히 바뀜 (피버 시작, 끝에 급가속, 급감속 없이)
+const SPEED_EASE_S = 0.6;
+export const speedNow = () => state.speed;
 
 export const multiplier = () => state.crew.length;
 
@@ -126,6 +152,7 @@ function addPopup(text, color = '#fff') {
 
 // ===== 구간 전환 =====
 function startFever() {
+  state.mapBase = mapDist();
   Object.assign(state, {
     phase: 'fever', phaseStart: state.dist, obstacles: [], heartItems: [],
     nextNoteAt: state.dist + 300, flashAt: performance.now(),
@@ -134,12 +161,17 @@ function startFever() {
 }
 
 function endFever() {
+  const lap = state.mapBase >= GATHER_LENGTH;   // 바퀴 끝 피버면 다음 라운드, 중간 피버면 맵 이어서
   Object.assign(state, {
-    phase: 'gather', phaseStart: state.dist, round: state.round + 1,
-    crew: [{ ...MEMBERS[0], x: LEADER_X }], joined: new Set([MEMBERS[0].id]),
-    nextObstacleAt: state.dist + 900, flashAt: performance.now(),
+    phase: 'gather', phaseStart: state.dist, nextObstacleAt: state.dist + 900, flashAt: performance.now(),
   });
-  addPopup(`ROUND ${state.round} · 다시 모으자!`, '#ffd34d');
+  if (lap) {
+    Object.assign(state, {
+      mapBase: 0, round: state.round + 1,
+      crew: [{ ...leaderMember(), x: LEADER_X }], joined: new Set([leaderMember().id]),
+    });
+    addPopup(state.solo ? `ROUND ${state.round}` : `ROUND ${state.round} · 다시 모으자!`, '#ffd34d');
+  }
 }
 
 // ===== 장애물, 음표, 하트 =====
@@ -221,7 +253,7 @@ function gameOver() {
   const final = Math.floor(state.score);
   state.lastResult = { score: final, rank: 0, name: '', saved: true, autoUsed: state.autoUsed,
     canRank: !state.autoUsed && final > 0,
-    round: state.round, distance: Math.floor(state.dist / PX_PER_M), notes: state.noteCount };
+    round: state.round, distance: Math.floor(state.dist / PX_PER_M), notes: state.noteCount, mode: runMode() };
   hooks.onGameOver(state.lastResult);
 }
 
@@ -249,7 +281,8 @@ export function update(dt) {
   if (state.scene === 'gameover' && state.auto && now - state.fallTime > 3500) reset();
   if (state.scene !== 'play') return;
 
-  const speed = speedNow();
+  state.speed += (targetSpeed() - state.speed) * (1 - Math.exp(-dt / SPEED_EASE_S));
+  const speed = state.speed;
   state.dist += speed * dt;
   state.score += speed * dt * SCORE_PER_PX * multiplier();
   if (state.auto) { state.autoUsed = true; autoPilot(speed); }
@@ -268,9 +301,10 @@ export function update(dt) {
   // 구간 진행
   const local = phaseDist();
   if (state.phase === 'gather') {
-    // 자기 패널이 나오면 합류 (화면 왼쪽에서 달려 들어옴)
-    for (const m of MEMBERS) {
-      if (local >= m.joinDist && !state.joined.has(m.id)) {
+    const map = mapDist(), feverAt = nextFeverAt();
+    // 자기 패널이 나오면 합류 (화면 왼쪽에서 달려 들어옴, 캐릭터 달리기는 합류 없음)
+    for (const m of state.solo ? [] : MEMBERS) {
+      if (map >= m.joinDist && !state.joined.has(m.id)) {
         state.joined.add(m.id);
         state.crew.push({ ...m, x: -120 });
         addPopup(m.name + ' 합류! ×' + state.crew.length, '#ffd34d');
@@ -279,8 +313,8 @@ export function update(dt) {
       }
     }
     // 장애물은 피버 직전 한 화면 전까지
-    if (state.dist > state.nextObstacleAt && local + W * 1.5 < GATHER_LENGTH) spawnObstacle();
-    if (local >= GATHER_LENGTH) startFever();
+    if (state.dist > state.nextObstacleAt && map + W * 1.5 < feverAt) spawnObstacle();
+    if (map >= feverAt) startFever();
   } else {
     spawnFeverNotes();
     if (local >= FEVER_LENGTH) endFever();
