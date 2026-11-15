@@ -102,6 +102,36 @@ function showDialog(id) {
   const d = document.getElementById(id);
   d.showModal();
   d.scrollTop = 0;
+  paginate(d);
+}
+
+// 창이 화면에 다 안 들어가면 .page 단위로 나눠 ←, → 버튼으로 넘기기 (스크롤 대신)
+function paginate(d) {
+  const pages = [...d.querySelectorAll('.page')];
+  let nav = d.querySelector('.pager');
+  if (!nav) {
+    nav = document.createElement('nav');
+    nav.className = 'pager';
+    nav.innerHTML = '<button type="button" class="prev" aria-label="이전 쪽">←</button><span></span><button type="button" class="next" aria-label="다음 쪽">→</button>';
+    nav.querySelector('.prev').addEventListener('click', () => showPage(d, +d.dataset.page - 1));
+    nav.querySelector('.next').addEventListener('click', () => showPage(d, +d.dataset.page + 1));
+    d.querySelector('form[method="dialog"]').prepend(nav);   // 닫기 버튼과 같은 줄
+  }
+  pages.forEach(p => { p.hidden = false; });
+  nav.hidden = true;
+  delete d.dataset.page;
+  if (pages.length > 1 && d.scrollHeight > d.clientHeight + 4) showPage(d, 0);   // 한 번에 다 보이면 그대로 (반올림 오차 4px 허용)
+}
+
+function showPage(d, n) {
+  const pages = [...d.querySelectorAll('.page')], nav = d.querySelector('.pager');
+  d.dataset.page = n;
+  pages.forEach((p, i) => { p.hidden = i !== n; });
+  nav.hidden = false;
+  nav.querySelector('span').textContent = `${n + 1} / ${pages.length}`;
+  nav.querySelector('.prev').disabled = n === 0;
+  nav.querySelector('.next').disabled = n === pages.length - 1;
+  drawHowto();   // 새로 보이는 그림
 }
 document.getElementById('helpBtn').addEventListener('click', () => { showDialog('helpDialog'); drawHowto(); });   // 열린 뒤 크기 재서 그림
 
@@ -143,14 +173,20 @@ async function showRanking(period) {
   rankTabs.forEach(b => b.setAttribute('aria-selected', b.dataset.period === period));
   document.getElementById('rankNote').textContent = RANK_NOTE[period]();
   const list = document.getElementById('rankList');
-  const msg = text => { list.innerHTML = ''; const li = document.createElement('li'); li.className = 'msg'; li.textContent = text; list.append(li); };
+  const msg = text => { list.innerHTML = ''; const ol = document.createElement('ol'); ol.className = 'rank'; const li = document.createElement('li'); li.className = 'msg'; li.textContent = text; ol.append(li); list.append(ol); paginate(document.getElementById('rankDialog')); };
   msg('불러오는 중');
   const rows = await fetchRanking(period);
   if (!document.querySelector(`#rankDialog [data-period="${period}"][aria-selected="true"]`)) return;   // 그사이 탭 바뀜
   if (!rows) return msg('랭킹을 불러오지 못했어요');
   if (!rows.length) return msg({ today: '오늘 기록이 아직 없어요', mine: '등록한 기록이 아직 없어요' }[period] || '아직 기록이 없어요');
   list.innerHTML = '';
-  rows.forEach((r, i) => list.append(rankRow(r, i + 1)));
+  for (let i = 0; i < rows.length; i += 5) {   // 5줄씩 묶어 화면이 낮으면 쪽 나눔
+    const ol = document.createElement('ol');
+    ol.className = 'rank page';
+    rows.slice(i, i + 5).forEach((r, k) => ol.append(rankRow(r, i + k + 1)));
+    list.append(ol);
+  }
+  paginate(document.getElementById('rankDialog'));
 }
 
 // 한 줄: 순위, 이름과 기록(거리, 음표, 날짜), 라운드, 점수
@@ -207,8 +243,15 @@ function resumeGame() {
 }
 
 addEventListener('blur', pauseGame);
-// 플레이 중 세로로 돌리면 일시정지
-matchMedia('(orientation: portrait)').addEventListener('change', e => { if (IS_TOUCH && e.matches) pauseGame(); });
+// 세로 화면: 가로로 돌리기 전까지 안내로 막기 (플레이 중이면 일시정지)
+const portrait = matchMedia('(orientation: portrait)');
+function syncPortrait() {
+  const on = IS_TOUCH && portrait.matches;
+  document.body.toggleAttribute('data-portrait', on);
+  if (on) pauseGame();
+}
+portrait.addEventListener('change', syncPortrait);
+syncPortrait();
 
 // 터치 플레이 버튼: 점프, 누르고 있으면 슬라이딩
 const jumpBtn = document.getElementById('jumpBtn'), slideBtn = document.getElementById('slideBtn');
@@ -220,6 +263,7 @@ for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) slideBtn.addEve
 const guide = document.getElementById('rotateGuide');
 if (IS_TOUCH) document.body.setAttribute('data-guide', '');
 guide.addEventListener('click', async () => {
+  if (document.body.hasAttribute('data-portrait')) return;   // 세로면 진행 안 함
   document.body.removeAttribute('data-guide');
   playTitleBgm();   // 첫 터치에 타이틀 브금
   try {
