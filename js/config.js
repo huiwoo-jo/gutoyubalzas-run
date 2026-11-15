@@ -68,6 +68,12 @@ export const MEMBERS = [
   { id: 'jangdan',   name: '리장단', panel: 12, common: 'jangdan_drum', play: 'jangdan_drum' },
 ].map(m => ({ ...m, joinDist: panelDist(m.panel) }));
 export const START_BTN = { x: 514, y: 300, w: 244, h: 68 };   // 시작 화면 START 버튼 영역 (common/button 그림 기준)
+// 장애물: assets/obstacles/이름.png를 w×h(게임 화면 px)로 늘려 그림, 크기가 곧 충돌 범위
+// 그림만 바꾸려면 png만 교체, 크기를 바꾸려면 w, h도 수정
+export const OBSTACLES = {
+  jump:  { img: 'amp',   w: 56,  h: 64 },             // 바닥 앰프 (점프로 넘기)
+  slide: { img: 'truss', w: 120, h: GROUND_Y - 95 },  // 천장 조명 트러스 (슬라이딩으로 지나가기, 위에서 바닥 95px 위까지)
+};
 export const HEART_IMG = 'uwek_default';  // 목숨으로 쓰는 우웩이
 
 // 브금: 유튜브 재생목록 ID (주소의 list= 뒤 값) 비워 두면 브금 없음
