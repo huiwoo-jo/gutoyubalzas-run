@@ -85,12 +85,13 @@ body[data-paused] .only-away { display: block !important; }
 /* 플레이 방법, 만든 사람들 창 */
 dialog {
   box-sizing: border-box;   /* 여백 포함해서 화면 높이 안에 */
-  max-width: min(560px, 90vw); max-height: 86vh; overflow: auto; padding: 20px 24px;
+  max-width: min(560px, 92vw); max-height: 92vh; overflow: auto;
+  padding: clamp(10px, 2.6vh, 20px) clamp(14px, 3vw, 24px);
   border: 3px solid #ffd34d; box-shadow: 6px 6px 0 #000; background: #111; color: #fff;
-  font: 15px/1.6 sans-serif;
+  font: clamp(12px, 2.2vh, 15px)/1.6 sans-serif;   /* 화면 높이에 맞춰 */
 }
 dialog::backdrop { background: rgba(0, 0, 0, .6); }
-dialog h2 { margin: 0 0 10px; font-size: 20px; color: #ffd34d; }
+dialog h2 { margin: 0 0 clamp(4px, 1.4vh, 10px); font-size: clamp(15px, 3vh, 20px); color: #ffd34d; }
 dialog ul { margin: 0; padding-left: 1.2em; }
 dialog dl { margin: 0; }
 dialog dt { margin-top: 10px; font-size: 13px; color: #aaa; }
@@ -108,10 +109,9 @@ dialog form button {
 dialog .howto { padding: 0; list-style: none; }
 dialog .howto li { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-top: 1px dashed #333; }
 dialog .howto li:first-child { border-top: 0; }
-dialog .howto canvas { flex: none; width: 150px; height: 56px; image-rendering: pixelated; }
-dialog .howto p { margin: 0; font-size: 14px; line-height: 1.5; }
+dialog .howto canvas { flex: none; width: clamp(90px, 18vw, 150px); height: clamp(34px, 7vh, 56px); image-rendering: pixelated; }
+dialog .howto p { margin: 0; font-size: clamp(12px, 2vh, 14px); line-height: 1.5; }
 dialog .howto b { margin-right: 4px; color: #ffd34d; }
-@media (max-width: 480px) { dialog .howto canvas { width: 100px; height: 40px; } }
 
 /* 만든 사람들: 멤버 이름 앞 우웩이 */
 dialog .members { list-style: none; padding: 0; }
@@ -155,13 +155,12 @@ dialog .privacyLink { margin: 10px 0 0; text-align: right; }
 /* 플레이 버튼: 플레이 중에만, 왼쪽 아래 슬라이딩, 오른쪽 아래 점프 */
 .touchBtn {
   display: none; position: absolute; bottom: calc(24px * var(--s));
-  width: max(64px, calc(120px * var(--s))); height: max(64px, calc(120px * var(--s)));
-  padding: 0; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  border: 3px solid #ffd34d; background: rgba(17, 17, 17, .55); box-shadow: 4px 4px 0 #000; cursor: pointer;
-  font: bold max(10px, calc(16px * var(--s))) sans-serif; color: #fff;
+  width: max(96px, calc(170px * var(--s))); height: max(48px, calc(72px * var(--s)));
+  padding: 0; align-items: center; justify-content: center;
+  border: 0; border-radius: 999px; background: rgba(255, 255, 255, .88); box-shadow: 0 4px 0 rgba(0, 0, 0, .45); cursor: pointer;
+  font: 900 max(15px, calc(26px * var(--s))) sans-serif; letter-spacing: .08em; color: #111;
 }
-.touchBtn svg { width: 55%; height: auto; filter: none; }
-.touchBtn:active { background: rgba(255, 211, 77, .45); }
+.touchBtn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, .45); background: #fff; }
 #slideBtn { left: calc(24px * var(--s)); }
 #jumpBtn { right: calc(24px * var(--s)); }
 body[data-touch][data-scene="play"]:not([data-paused]) .touchBtn { display: flex; }
@@ -182,13 +181,6 @@ body[data-guide] #rotateGuide { display: flex; }
 
 /* 낮은 화면 (휴대폰 가로): 창, 이름 입력칸 줄이기 */
 @media (max-height: 520px) {
-  dialog { max-width: 92vw; max-height: 92vh; padding: 12px 16px; font-size: 13px; }
-  dialog h2 { margin-bottom: 6px; font-size: 16px; }
-  dialog form { margin-top: 10px; }
-  dialog .howto li { padding: 4px 0; gap: 10px; }
-  dialog .howto canvas { width: 96px; height: 36px; }
-  dialog .howto p, dialog .lines, dialog .members { font-size: 12px; }
-  dialog .rank li { padding: 4px 0; }
   #nameForm { gap: 6px; font-size: 16px; }   /* 16px 미만이면 iOS가 확대 */
   #nameForm input { width: 140px; padding: 6px 8px; }
   #nameForm button { padding: 6px 10px; }

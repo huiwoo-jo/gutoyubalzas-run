@@ -29,8 +29,8 @@
       <button id="infoBtn" class="only-menu" type="button" title="만든 사람들 (정보)" aria-label="만든 사람들"><svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="#fff" aria-hidden="true"><rect x="4" y="0" width="6" height="1"/><rect x="2" y="1" width="2" height="1"/><rect x="10" y="1" width="2" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="6" y="3" width="2" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="6" y="4" width="2" height="1"/><rect x="13" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="13" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="5" y="6" width="3" height="1"/><rect x="13" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="6" y="7" width="2" height="1"/><rect x="13" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="6" y="8" width="2" height="1"/><rect x="13" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="6" y="9" width="2" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="5" y="10" width="4" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="12" y="11" width="1" height="1"/><rect x="2" y="12" width="2" height="1"/><rect x="10" y="12" width="2" height="1"/><rect x="4" y="13" width="6" height="1"/></svg></button>
     </nav>
     <!-- 터치 기기 플레이 버튼 (누르고 있으면 슬라이딩) -->
-    <button id="slideBtn" class="touchBtn" type="button" aria-label="슬라이딩"><svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="#fff" aria-hidden="true"><rect x="5" y="2" width="4" height="1"/><rect x="5" y="3" width="4" height="1"/><rect x="5" y="4" width="4" height="1"/><rect x="5" y="5" width="4" height="1"/><rect x="5" y="6" width="4" height="1"/><rect x="5" y="7" width="4" height="1"/><rect x="2" y="8" width="10" height="1"/><rect x="3" y="9" width="8" height="1"/><rect x="4" y="10" width="6" height="1"/><rect x="5" y="11" width="4" height="1"/><rect x="6" y="12" width="2" height="1"/></svg><span>슬라이딩</span></button>
-    <button id="jumpBtn" class="touchBtn" type="button" aria-label="점프"><svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="#fff" aria-hidden="true"><rect x="6" y="1" width="2" height="1"/><rect x="5" y="2" width="4" height="1"/><rect x="4" y="3" width="6" height="1"/><rect x="3" y="4" width="8" height="1"/><rect x="2" y="5" width="10" height="1"/><rect x="5" y="6" width="4" height="1"/><rect x="5" y="7" width="4" height="1"/><rect x="5" y="8" width="4" height="1"/><rect x="5" y="9" width="4" height="1"/><rect x="5" y="10" width="4" height="1"/><rect x="5" y="11" width="4" height="1"/></svg><span>점프</span></button>
+    <button id="slideBtn" class="touchBtn" type="button" aria-label="슬라이딩">SLIDE</button>
+    <button id="jumpBtn" class="touchBtn" type="button" aria-label="점프">JUMP</button>
     <p id="notice" class="only-menu">비공식 팬메이드 게임 · 캐릭터 © 천진우와 구토유발자들</p>
   </div>
   <!-- 터치 기기 첫 안내: 가로로 돌리기 (누르면 닫힘) -->
@@ -38,6 +38,7 @@
     <div class="phone"><svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="#fff" aria-hidden="true"><rect x="4" y="1" width="6" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/><rect x="4" y="11" width="1" height="1"/><rect x="6" y="11" width="2" height="1"/><rect x="9" y="11" width="1" height="1"/><rect x="4" y="12" width="6" height="1"/></svg></div>
     <p>화면을 가로로 돌려 주세요</p>
     <p class="small">가로 화면에서 더 크게 즐길 수 있어요</p>
+    <p class="small">휴대폰, 태블릿에서는 게임 중에도 타이틀 음악이 나와요</p>
     <p class="tap">화면을 눌러 시작</p>
   </div>
   <dialog id="helpDialog">
@@ -76,7 +77,7 @@
       <li>마지막으로 입력한 이름과 무작위 ID는 이 브라우저에만 남아요</li>
       <li>브라우저의 사이트 데이터를 지우면 내 기록 목록도 처음부터 다시 모여요</li>
       <li>이메일, 연락처, 위치 같은 개인정보는 모으지 않아요</li>
-      <li>게임 중 음악은 유튜브 플레이어로 재생되어 유튜브의 개인정보 정책이 적용돼요</li>
+      <li>PC에서 게임 중 음악은 유튜브 플레이어로 재생되어 유튜브의 개인정보 정책이 적용돼요</li>
       <li>등록한 기록 삭제는 개발자에게 문의해 주세요 (<a href="https://open.kakao.com/o/sButobqi" target="_blank" rel="noopener">카카오톡 오픈채팅</a>)</li>
     </ul>
     <form method="dialog"><button>닫기</button></form>
@@ -95,7 +96,7 @@
       <dt>캐릭터, 그래픽 디자인</dt>
       <dd>광순 <a href="https://www.instagram.com/_gwangsun/" target="_blank" rel="noopener">@_gwangsun</a></dd>
       <dt>기록 저장</dt><dd><button type="button" class="link" data-open="privacyDialog">기록 저장 안내 보기</button></dd>
-      <dt>게임 중 음악</dt><dd>천진우 유튜브 음원 (유튜브 플레이어로 재생)</dd>
+      <dt>게임 중 음악</dt><dd>PC: 천진우 유튜브 음원 (유튜브 플레이어로 재생)<br>휴대폰, 태블릿: 타이틀 음악</dd>
     </dl>
     <form method="dialog"><button>닫기</button></form>
   </dialog>
