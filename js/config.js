@@ -59,19 +59,23 @@ export const RANK_KEY = 'gutoRun.ranking.v1', NAME_KEY = 'gutoRun.name';
 export const RANK_SHOW = 5;              // 게임 오버 화면에 보여 줄 순위 수
 export const RANK_STORE = 10;           // 보관할 기록 수
 
-// 멤버별 캐릭터 및 우웩이
+// 멤버별 캐릭터 및 우웩이 (common: 시작 화면 악기, play: 합류 카드의 악기 든 모습)
 export const MEMBERS = [
-  { id: 'jinwoo',    name: '천진우', panel: 0,  common: 'jinwoo_mike' },
-  { id: 'gito',      name: '기토',   panel: 3,  common: 'gito_guitar' },
-  { id: 'beobyoung', name: '법영이', panel: 6,  common: 'beobyoung_guitar' },
-  { id: 'donghun',   name: '양동훈', panel: 9,  common: 'donghun_guitar' },
-  { id: 'jangdan',   name: '리장단', panel: 12, common: 'jangdan_drum' },
+  { id: 'jinwoo',    name: '천진우', panel: 0,  common: 'jinwoo_mike', play: 'jinwoo_mike' },
+  { id: 'gito',      name: '기토',   panel: 3,  common: 'gito_guitar', play: 'gito_saxophone' },
+  { id: 'beobyoung', name: '법영이', panel: 6,  common: 'beobyoung_guitar', play: 'beobyoung_guitar' },
+  { id: 'donghun',   name: '양동훈', panel: 9,  common: 'donghun_guitar', play: 'donghun_base' },
+  { id: 'jangdan',   name: '리장단', panel: 12, common: 'jangdan_drum', play: 'jangdan_drum' },
 ].map(m => ({ ...m, joinDist: panelDist(m.panel) }));
 export const HEART_IMG = 'uwek_default';  // 목숨으로 쓰는 우웩이
 
 // 브금: 유튜브 재생목록 ID (주소의 list= 뒤 값) 비워 두면 브금 없음
 export const BGM_PLAYLIST = 'PLgiJpwmxCJ6dj1PHhREG_x0w-N9gq-4Lr';
 export const BGM_VOLUME = 50;            // 0~100
+
+// 효과음, 타이틀 브금 (assets/sounds)
+export const SFX_VOLUME = 0.6;           // 0~1
+export const TITLE_BGM_VOLUME = 0.4;     // 0~1
 
 // 광고판: Mortals Log의 공연, 앨범을 랜덤사용
 export const SITE_URL = 'https://mortals-log.vercel.app';

@@ -28,11 +28,14 @@ python3 serve.py
 | `js/render.js` | 화면 그리기 |
 | `js/input.js` | 키보드 · 터치 조작, 이름 입력 |
 | `js/bgm.js` | 브금 (유튜브 재생목록에서 랜덤 곡) |
+| `js/sfx.js` | 효과음, 타이틀 브금 |
+| `js/joincard.js` | 멤버 합류 카드 (악기 든 멤버, 왼쪽에서 슬라이드, 게임 화면 크기에 맞춰 축소) |
 | `js/ads.js` | 빈 벽 광고판 (Mortals Log의 가장 가까운 공연 · 구매 가능한 앨범) |
 | `js/main.js` | 시작점 (로딩, 게임 루프) |
-| `assets/characters/멤버/` | 멤버별 달리기(`멤버_run1~3`) · 점프(`멤버_jump`) |
+| `assets/characters/멤버/` | 멤버별 달리기(`멤버_run1~3`) · 점프(`멤버_jump`) · 악기 든 모습(`멤버_악기`, 합류 카드) |
 | `assets/backgrounds/` | 배경 패널(`bg_far1~11`) · 바닥(`bg_ground`) |
 | `assets/common/` | 시작 화면 (배경, 조명, 로고, START 버튼, 멤버 악기) · 피버 타임 무대 |
+| `assets/sounds/` | 타이틀 브금(`title_bgm_icecream`), 효과음(`jump`, `slide`, `eat`, `join_멤버`, `gameover`) |
 | `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트, `uwek_all`: 단체) |
 
 ## 조작
@@ -61,6 +64,8 @@ python3 serve.py
 - `js/config.js`의 `BGM_PLAYLIST`에 재생목록 ID(주소의 `list=` 뒤 값)를 넣습니다. 채널 전체 영상을 쓰려면 채널 ID(`UC…`)의 앞 두 글자를 `UU`로 바꿔 넣습니다.
 - 유튜브 정책상 플레이어는 숨기지 않고 화면 오른쪽 위에 200×200으로 보여 줍니다.
 - 퍼가기가 막힌 영상은 건너뛰고, 인터넷이 없으면 브금 없이 진행됩니다. 유튜브 광고가 나올 수 있습니다.
+- 시작 화면, 게임 오버 화면(효과음이 끝난 뒤)에는 타이틀 브금(`assets/sounds`)이 나옵니다. 브라우저가 자동 재생을 막으면 첫 입력에 타이틀 브금이 나오고, 다음 입력에 시작합니다.
+- 점프, 슬라이딩, 음표 먹기, 멤버 합류, 게임 오버 효과음이 나옵니다. 크기는 `SFX_VOLUME`, `TITLE_BGM_VOLUME`으로 조절합니다.
 
 ## 광고판
 

@@ -4,11 +4,12 @@ import { W, H, PANELS, CHAR_SCALE, MEMBERS, RUN_FRAMES, HEART_IMG } from './conf
 
 export const IMG = {};
 
-// [이름, 폴더]: assets/폴더/이름.png
+// [이름, 폴더, 키]: assets/폴더/이름.png를 IMG[키 또는 이름]으로
 const assetList = [
   ...MEMBERS.flatMap(m => [
     ...Array.from({ length: RUN_FRAMES }, (_, i) => [`${m.id}_run${i + 1}`, `characters/${m.id}`]),
     [m.id + '_jump', `characters/${m.id}`],
+    [m.play, `characters/${m.id}`, 'play_' + m.id],   // 시작 화면 악기와 이름이 같아 키 분리
     [m.common, 'common'],
     ['uwek_' + m.id, 'uwek'],
   ]),
@@ -28,17 +29,17 @@ function shrink(img, w, h) {
 }
 
 export function loadAssets() {
-  return Promise.all(assetList.map(([n, dir]) => new Promise((ok, fail) => {
+  return Promise.all(assetList.map(([n, dir, key = n]) => new Promise((ok, fail) => {
     const src = `assets/${dir}/${n}.png`;
     const img = new Image();
     let tries = 0;
     img.onload = () => {
       if (dir.startsWith('characters/')) {
-        IMG[n] = shrink(img, Math.round(img.width * CHAR_SCALE), Math.round(img.height * CHAR_SCALE));
+        IMG[key] = shrink(img, Math.round(img.width * CHAR_SCALE), Math.round(img.height * CHAR_SCALE));
       } else if (dir === 'uwek') {
-        IMG[n] = shrink(img, Math.round(img.width * 96 / img.height), 96);
+        IMG[key] = shrink(img, Math.round(img.width * 96 / img.height), 96);
       } else {
-        IMG[n] = shrink(img, W, H);
+        IMG[key] = shrink(img, W, H);
       }
       ok();
     };

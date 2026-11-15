@@ -1,11 +1,26 @@
 html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-action: none; }
-canvas { display: block; image-rendering: pixelated; position: absolute; }   /* 위치, 크기: main.js fit() */
+#game { display: block; image-rendering: pixelated; position: absolute; }   /* 위치, 크기: main.js fit() */
 
 /* 브금 카드: 유튜브 플레이어(정책상 200×200, 숨기지 않음), 곡 제목, 가수 */
 #bgmCard {
   position: absolute; top: 8px; right: 8px; display: none; flex-direction: column; width: 200px;
   padding: 4px; background: #111; border: 3px solid #ffd34d; box-shadow: 4px 4px 0 #000;
   font: bold 14px sans-serif; color: #fff;
+}
+/* 멤버 합류 카드: 브금 카드와 같은 모양, 왼쪽에서 들어왔다 나감 (위치: joincard.js) */
+#joinCard {
+  position: absolute; left: -240px; display: none; flex-direction: column; width: 200px;
+  padding: 4px; background: #111; border: 3px solid #ffd34d; box-shadow: 4px 4px 0 #000;
+  font: bold 14px sans-serif; color: #fff; pointer-events: none;
+  transform: scale(var(--s, 1)); transform-origin: top left;   /* 게임 화면 크기에 맞춰 축소 */
+}
+#joinCard.show { display: flex; animation: joinSlide 2.4s ease-in-out forwards; }
+#joinPic { width: 200px; height: 200px; display: block; background: #222; }
+#joinName { margin-top: 5px; padding: 0 2px; color: #ffd34d; }
+#joinSub { margin: 2px 0 1px; padding: 0 2px; font-size: 12px; color: #aaa; }
+@keyframes joinSlide {
+  0%, 100% { left: -240px; }
+  15%, 80% { left: var(--x); }
 }
 #bgmCard iframe, #bgm { width: 200px; height: 200px; display: block; }
 #bgmTitle, #bgmArtist { padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

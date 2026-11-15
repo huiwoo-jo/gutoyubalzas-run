@@ -8,6 +8,7 @@ import {
   LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
 import { addRanking } from './storage.js';
+import { playSfx, stopSfx } from './sfx.js';
 
 // scene: loading | error | title | intro(천진우 걸어 나옴) | play | fall | gameover
 // phase (play 중): gather | fever
@@ -47,8 +48,8 @@ export function startIntro() {
   state.introStart = performance.now();
 }
 
-// 알림: 새 판 시작, 게임 오버 (input.js에서 처리)
-export const hooks = { onReset() {}, onGameOver() {} };
+// 알림: 새 판 시작, 게임 오버, 멤버 합류 (input.js에서 처리)
+export const hooks = { onReset() {}, onGameOver() {}, onJoin() {} };
 
 export function reset() {
   Object.assign(state, {
@@ -90,7 +91,7 @@ export const multiplier = () => state.crew.length;
 
 export function jump() {
   const { leader } = state;
-  if (state.scene === 'play' && leader.y >= GROUND_Y && !leader.sliding) leader.vy = JUMP_V;
+  if (state.scene === 'play' && leader.y >= GROUND_Y && !leader.sliding) { leader.vy = JUMP_V; playSfx('jump'); }
 }
 
 export function leaderBox() {
@@ -205,6 +206,7 @@ function hit() {
     return true;
   }
   state.scene = 'fall';
+  stopSfx('slide');
   state.fallTime = performance.now();
   return false;
 }
@@ -212,6 +214,7 @@ function hit() {
 // 게임 오버 (자동 플레이 판은 랭킹 제외)
 function gameOver() {
   state.scene = 'gameover';
+  playSfx('gameover');
   const final = Math.floor(state.score);
   state.lastResult = { score: final, rank: 0, name: '', saved: true, autoUsed: state.autoUsed,
     canRank: !state.autoUsed && final > 0 };
@@ -247,7 +250,9 @@ export function update(dt) {
 
   // 선두 물리
   const { leader } = state;
-  leader.sliding = state.slideHeld && leader.y >= GROUND_Y;
+  const sliding = state.slideHeld && leader.y >= GROUND_Y;
+  if (sliding !== leader.sliding) sliding ? playSfx('slide') : stopSfx('slide');
+  leader.sliding = sliding;
   leader.vy += GRAVITY * dt;
   leader.y = Math.min(GROUND_Y, leader.y + leader.vy * dt);
   if (leader.y >= GROUND_Y) leader.vy = 0;
@@ -263,6 +268,8 @@ export function update(dt) {
         state.joined.add(m.id);
         state.crew.push({ ...m, x: -120 });
         addPopup(m.name + ' 합류! ×' + state.crew.length, '#ffd34d');
+        playSfx('join_' + m.id);
+        hooks.onJoin(m, state.crew.length);
       }
     }
     // 장애물은 피버 직전 한 화면 전까지
@@ -308,6 +315,7 @@ export function update(dt) {
     if (!n.taken && touches(box, n)) {
       n.taken = true;
       state.noteCount++;
+      playSfx('eat');
       state.score += NOTE_SCORE * multiplier() * noteMult;
     }
   }
