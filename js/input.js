@@ -17,6 +17,9 @@ const ticketLink = document.getElementById('ticketLink');
 
 export const nameFormOpen = () => nameForm.style.display === 'flex';
 
+// 터치 기기 (휴대폰, 태블릿): 플레이 버튼, 가로 회전 안내
+export const isTouch = matchMedia('(pointer: coarse)').matches;
+
 export function showTitle() {
   state.scene = 'title';
   hideNameForm();
@@ -91,7 +94,13 @@ export function syncTicketLink() {
 
 // 플레이 방법(?), 만든 사람들(!) 창
 const openDialog = () => document.querySelector('dialog[open]');
-document.getElementById('helpBtn').addEventListener('click', () => { document.getElementById('helpDialog').showModal(); drawHowto(); });   // 열린 뒤 크기 재서 그림
+// 창 열기: 닫기 버튼에 포커스가 가며 아래로 스크롤되는 것 막기
+function showDialog(id) {
+  const d = document.getElementById(id);
+  d.showModal();
+  d.scrollTop = 0;
+}
+document.getElementById('helpBtn').addEventListener('click', () => { showDialog('helpDialog'); drawHowto(); });   // 열린 뒤 크기 재서 그림
 
 // 창 안 그림: 칸마다 캐릭터 이미지 (data-squash: 슬라이딩처럼 납작하게)
 function drawHowto() {
@@ -107,16 +116,16 @@ function drawHowto() {
 }
 document.getElementById('rankBtn').addEventListener('click', openRanking);
 // 다른 창 위에 겹쳐 열기 (기록 저장 안내)
-document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.open).showModal()));
+document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => showDialog(b.dataset.open)));
 document.getElementById('homeBtn').addEventListener('click', goHome);
-document.getElementById('infoBtn').addEventListener('click', () => { document.getElementById('creditDialog').showModal(); drawHowto(); });
+document.getElementById('infoBtn').addEventListener('click', () => { showDialog('creditDialog'); drawHowto(); });
 
 // 랭킹 창: 오늘, 전체 탭 (열거나 탭을 바꿀 때마다 서버에서 받기)
 const rankTabs = document.querySelectorAll('#rankDialog [data-period]');
 rankTabs.forEach(b => b.addEventListener('click', () => showRanking(b.dataset.period)));
 
 function openRanking() {
-  document.getElementById('rankDialog').showModal();
+  showDialog('rankDialog');
   showRanking('all');
 }
 
@@ -192,6 +201,26 @@ function resumeGame() {
 }
 
 addEventListener('blur', pauseGame);
+// 플레이 중 세로로 돌리면 일시정지
+matchMedia('(orientation: portrait)').addEventListener('change', e => { if (isTouch && e.matches) pauseGame(); });
+
+// 터치 플레이 버튼: 점프, 누르고 있으면 슬라이딩
+const jumpBtn = document.getElementById('jumpBtn'), slideBtn = document.getElementById('slideBtn');
+jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+slideBtn.addEventListener('pointerdown', e => { e.preventDefault(); state.slideHeld = true; });
+for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) slideBtn.addEventListener(ev, () => { state.slideHeld = false; });
+
+// 가로 회전 안내: 처음 한 번, 누르면 닫고 가능하면 전체 화면, 가로 고정 (iOS는 지원 안 함)
+const guide = document.getElementById('rotateGuide');
+if (isTouch) document.body.setAttribute('data-guide', '');
+guide.addEventListener('click', async () => {
+  document.body.removeAttribute('data-guide');
+  playTitleBgm();   // 첫 터치에 타이틀 브금
+  try {
+    await document.documentElement.requestFullscreen?.();
+    await screen.orientation?.lock?.('landscape');
+  } catch { /* 지원 안 하는 브라우저는 그대로 */ }
+});
 document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
 
 // Space, 탭: 장면에 따라 다시 하기, 점프 (시작 화면은 START 버튼으로만 시작)

@@ -7,7 +7,7 @@ import {
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist } from './game.js';
 import { loadRanking, loadMyBest } from './storage.js';
-import { nameFormOpen } from './input.js';
+import { nameFormOpen, isTouch } from './input.js';
 import { playedSongs, shownSongs } from './bgm.js';
 import { adFor } from './ads.js';
 
@@ -384,7 +384,7 @@ function drawGameOver() {
   const songs = playedSongs().length > 0;
   drawRanking(songs ? W / 2 - 190 : W / 2, 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
   if (songs) drawSongs(SONGS_X, SONGS_Y, RANK_SHOW);
-  drawText('Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
+  drawText(isTouch ? '화면을 눌러 다시 하기' : 'Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
 }
 
 export function render() {
@@ -401,6 +401,6 @@ export function render() {
   if (state.paused) {
     ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
     drawText('일시정지', H / 2 - 20, 56);
-    drawText('Space 또는 클릭으로 다시 시작', H / 2 + 40, 28, '#ffd34d');
+    drawText(isTouch ? '화면을 눌러 다시 시작' : 'Space 또는 클릭으로 다시 시작', H / 2 + 40, 28, '#ffd34d');
   }
 }
