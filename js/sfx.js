@@ -56,6 +56,10 @@ export function playTitleBgm() {
 
 export const titleBgmPaused = () => titleBgm.paused;
 
+export function pauseTitleBgm() {
+  titleBgm.pause();
+}
+
 export function stopTitleBgm() {
   titleBgm.pause();
   titleBgm.currentTime = 0;

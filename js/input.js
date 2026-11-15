@@ -2,11 +2,11 @@
 import { state, reset, jump, hooks, startIntro, registerScore } from './game.js';
 import { loadName, saveName, refreshRanking, fetchRanking } from './storage.js';
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, shownSongs, songUrl } from './bgm.js';
-import { playTitleBgm, stopTitleBgm, stopSfx } from './sfx.js';
+import { playTitleBgm, stopTitleBgm, pauseTitleBgm, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
-import { W, H, RANK_SHOW, RANK_STORE, START_BTN } from './config.js';
+import { W, H, RANK_SHOW, RANK_STORE, START_BTN, IS_TOUCH } from './config.js';
 
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
@@ -16,6 +16,7 @@ const songLinks = document.getElementById('songLinks');
 const ticketLink = document.getElementById('ticketLink');
 
 export const nameFormOpen = () => nameForm.style.display === 'flex';
+
 
 export function showTitle() {
   state.scene = 'title';
@@ -37,10 +38,15 @@ function hideNameForm() {
   nameInput.blur();
 }
 
-hooks.onReset = () => { hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover'); stopTitleBgm(); };
+hooks.onReset = () => {
+  hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover');
+  if (IS_TOUCH) playTitleBgm();   // 터치 기기는 플레이 중에도 타이틀 브금
+  else stopTitleBgm();
+};
 hooks.onJoin = showJoinCard;
 hooks.onGameOver = result => {
   fadeOutBgm();   // 브금은 서서히 줄이고, 목록은 게임 오버 전까지 들은 곡만
+  if (IS_TOUCH) stopTitleBgm();   // 게임 오버 효과음 뒤 다시 (sfx.js)
   refreshRanking();   // 그사이 다른 사람 기록 반영
   if (result.canRank) showNameForm();
 };
@@ -91,7 +97,43 @@ export function syncTicketLink() {
 
 // 플레이 방법(?), 만든 사람들(!) 창
 const openDialog = () => document.querySelector('dialog[open]');
-document.getElementById('helpBtn').addEventListener('click', () => { document.getElementById('helpDialog').showModal(); drawHowto(); });   // 열린 뒤 크기 재서 그림
+// 창 열기: 닫기 버튼에 포커스가 가며 아래로 스크롤되는 것 막기
+function showDialog(id) {
+  const d = document.getElementById(id);
+  d.showModal();
+  d.scrollTop = 0;
+  paginate(d);
+}
+
+// 창이 화면에 다 안 들어가면 .page 단위로 나눠 ←, → 버튼으로 넘기기 (스크롤 대신)
+function paginate(d) {
+  const pages = [...d.querySelectorAll('.page')];
+  let nav = d.querySelector('.pager');
+  if (!nav) {
+    nav = document.createElement('nav');
+    nav.className = 'pager';
+    nav.innerHTML = '<button type="button" class="prev" aria-label="이전 쪽">←</button><span></span><button type="button" class="next" aria-label="다음 쪽">→</button>';
+    nav.querySelector('.prev').addEventListener('click', () => showPage(d, +d.dataset.page - 1));
+    nav.querySelector('.next').addEventListener('click', () => showPage(d, +d.dataset.page + 1));
+    d.querySelector('form[method="dialog"]').prepend(nav);   // 닫기 버튼과 같은 줄
+  }
+  pages.forEach(p => { p.hidden = false; });
+  nav.hidden = true;
+  delete d.dataset.page;
+  if (pages.length > 1 && d.scrollHeight > d.clientHeight + 4) showPage(d, 0);   // 한 번에 다 보이면 그대로 (반올림 오차 4px 허용)
+}
+
+function showPage(d, n) {
+  const pages = [...d.querySelectorAll('.page')], nav = d.querySelector('.pager');
+  d.dataset.page = n;
+  pages.forEach((p, i) => { p.hidden = i !== n; });
+  nav.hidden = false;
+  nav.querySelector('span').textContent = `${n + 1} / ${pages.length}`;
+  nav.querySelector('.prev').disabled = n === 0;
+  nav.querySelector('.next').disabled = n === pages.length - 1;
+  drawHowto();   // 새로 보이는 그림
+}
+document.getElementById('helpBtn').addEventListener('click', () => { showDialog('helpDialog'); drawHowto(); });   // 열린 뒤 크기 재서 그림
 
 // 창 안 그림: 칸마다 캐릭터 이미지 (data-squash: 슬라이딩처럼 납작하게)
 function drawHowto() {
@@ -107,16 +149,16 @@ function drawHowto() {
 }
 document.getElementById('rankBtn').addEventListener('click', openRanking);
 // 다른 창 위에 겹쳐 열기 (기록 저장 안내)
-document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.open).showModal()));
+document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => showDialog(b.dataset.open)));
 document.getElementById('homeBtn').addEventListener('click', goHome);
-document.getElementById('infoBtn').addEventListener('click', () => { document.getElementById('creditDialog').showModal(); drawHowto(); });
+document.getElementById('infoBtn').addEventListener('click', () => { showDialog('creditDialog'); drawHowto(); });
 
 // 랭킹 창: 오늘, 전체 탭 (열거나 탭을 바꿀 때마다 서버에서 받기)
 const rankTabs = document.querySelectorAll('#rankDialog [data-period]');
 rankTabs.forEach(b => b.addEventListener('click', () => showRanking(b.dataset.period)));
 
 function openRanking() {
-  document.getElementById('rankDialog').showModal();
+  showDialog('rankDialog');
   showRanking('all');
 }
 
@@ -131,14 +173,20 @@ async function showRanking(period) {
   rankTabs.forEach(b => b.setAttribute('aria-selected', b.dataset.period === period));
   document.getElementById('rankNote').textContent = RANK_NOTE[period]();
   const list = document.getElementById('rankList');
-  const msg = text => { list.innerHTML = ''; const li = document.createElement('li'); li.className = 'msg'; li.textContent = text; list.append(li); };
+  const msg = text => { list.innerHTML = ''; const ol = document.createElement('ol'); ol.className = 'rank'; const li = document.createElement('li'); li.className = 'msg'; li.textContent = text; ol.append(li); list.append(ol); paginate(document.getElementById('rankDialog')); };
   msg('불러오는 중');
   const rows = await fetchRanking(period);
   if (!document.querySelector(`#rankDialog [data-period="${period}"][aria-selected="true"]`)) return;   // 그사이 탭 바뀜
   if (!rows) return msg('랭킹을 불러오지 못했어요');
   if (!rows.length) return msg({ today: '오늘 기록이 아직 없어요', mine: '등록한 기록이 아직 없어요' }[period] || '아직 기록이 없어요');
   list.innerHTML = '';
-  rows.forEach((r, i) => list.append(rankRow(r, i + 1)));
+  for (let i = 0; i < rows.length; i += 5) {   // 5줄씩 묶어 화면이 낮으면 쪽 나눔
+    const ol = document.createElement('ol');
+    ol.className = 'rank page';
+    rows.slice(i, i + 5).forEach((r, k) => ol.append(rankRow(r, i + k + 1)));
+    list.append(ol);
+  }
+  paginate(document.getElementById('rankDialog'));
 }
 
 // 한 줄: 순위, 이름과 기록(거리, 음표, 날짜), 라운드, 점수
@@ -174,7 +222,8 @@ function onStart(e) {
 }
 
 function start() {
-  stopTitleBgm(); playBgm(); startIntro();
+  if (!IS_TOUCH) stopTitleBgm();
+  playBgm(); startIntro();
 }
 
 // 창을 벗어나면 일시정지 (다른 창 클릭, 탭 전환)
@@ -184,14 +233,44 @@ function pauseGame() {
   state.slideHeld = false;
   stopSfx('slide');
   pauseBgm();
+  if (IS_TOUCH) pauseTitleBgm();
 }
 
 function resumeGame() {
   state.paused = false;
   resumeBgm();
+  if (IS_TOUCH) playTitleBgm();
 }
 
 addEventListener('blur', pauseGame);
+// 세로 화면: 가로로 돌리기 전까지 안내로 막기 (플레이 중이면 일시정지)
+const portrait = matchMedia('(orientation: portrait)');
+function syncPortrait() {
+  const on = IS_TOUCH && portrait.matches;
+  document.body.toggleAttribute('data-portrait', on);
+  if (on) pauseGame();
+}
+portrait.addEventListener('change', syncPortrait);
+syncPortrait();
+
+// 터치 플레이 버튼: 점프, 누르고 있으면 슬라이딩
+const jumpBtn = document.getElementById('jumpBtn'), slideBtn = document.getElementById('slideBtn');
+jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+slideBtn.addEventListener('pointerdown', e => { e.preventDefault(); state.slideHeld = true; });
+for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) slideBtn.addEventListener(ev, () => { state.slideHeld = false; });
+
+// 가로 회전 안내: 처음 한 번, 누르면 닫고 가능하면 전체 화면, 가로 고정 (iOS는 지원 안 함)
+const guide = document.getElementById('rotateGuide');
+if (IS_TOUCH) document.body.setAttribute('data-guide', '');
+guide.addEventListener('click', async () => {
+  if (document.body.hasAttribute('data-portrait')) return;   // 세로면 진행 안 함
+  document.body.removeAttribute('data-guide');
+  playTitleBgm();   // 첫 터치에 타이틀 브금
+  try {
+    await document.documentElement.requestFullscreen?.();
+    await screen.orientation?.lock?.('landscape');
+  } catch { /* 지원 안 하는 브라우저는 그대로 */ }
+});
 document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
 
 // Space, 탭: 장면에 따라 다시 하기, 점프 (시작 화면은 START 버튼으로만 시작)

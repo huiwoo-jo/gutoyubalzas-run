@@ -77,6 +77,9 @@ export const OBSTACLES = {
 };
 export const HEART_IMG = 'uwek_default';  // 목숨으로 쓰는 우웩이
 
+// 터치 기기 (휴대폰, 태블릿): 플레이 버튼, 가로 회전 안내, 유튜브 대신 타이틀 브금
+export const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
+
 // 브금: 유튜브 재생목록 ID (주소의 list= 뒤 값) 비워 두면 브금 없음
 export const BGM_PLAYLIST = 'PLgiJpwmxCJ6dj1PHhREG_x0w-N9gq-4Lr';
 export const BGM_VOLUME = 50;            // 0~100
