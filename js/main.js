@@ -20,6 +20,9 @@ function fit() {
   Object.assign(canvas.style, { width: cw + 'px', height: ch + 'px', left: left + 'px', top: top + 'px' });
   Object.assign(ui.style, { width: cw + 'px', height: ch + 'px', left: left + 'px', top: top + 'px' });
   ui.style.setProperty('--s', s);
+  // PC 플레이 중 오른쪽 위 아이콘: 유튜브 브금 카드(창 오른쪽 위 222×270)와 겹치면 카드 왼쪽으로
+  const under = top < 8 + 270 && left + cw > innerWidth - 230;
+  ui.style.setProperty('--card-gap', under ? `${left + cw - (innerWidth - 230)}px` : '0px');
   nameForm.style.left = left + cw / 2 + 'px';        // 이름 입력칸은 게임 화면 60% 높이
   nameForm.style.top = top + ch * 0.6 + 'px';
 }

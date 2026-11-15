@@ -6,7 +6,7 @@ import { playTitleBgm, stopTitleBgm, pauseTitleBgm, playGameBgm, stopGameBgm, pa
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
-import { W, H, RANK_SHOW, RANK_STORE, START_BTN, IS_TOUCH } from './config.js';
+import { W, H, RANK_SHOW, RANK_STORE, START_BTN, IS_TOUCH, RESUME_COUNT_MS } from './config.js';
 
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
@@ -160,6 +160,10 @@ document.getElementById('rankBtn').addEventListener('click', openRanking);
 // 다른 창 위에 겹쳐 열기 (기록 저장 안내)
 document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => showDialog(b.dataset.open)));
 document.getElementById('homeBtn').addEventListener('click', goHome);
+// 일시정지 버튼, 메뉴 (이어하기, 홈으로)
+document.getElementById('pauseBtn').addEventListener('click', () => pauseGame());
+document.getElementById('resumeBtn').addEventListener('click', () => resumeGame());
+document.getElementById('pauseHomeBtn').addEventListener('click', goHome);
 document.getElementById('infoBtn').addEventListener('click', () => { showDialog('creditDialog'); drawHowto(); });
 
 // 랭킹 창: 오늘, 전체 탭 (열거나 탭을 바꿀 때마다 서버에서 받기)
@@ -225,7 +229,7 @@ function rankRow(r, rank) {
   return li;
 }
 
-// 홈 버튼 (게임 오버, 일시정지): 시작 화면으로
+// 홈 버튼 (게임 오버, 일시정지 메뉴): 시작 화면으로
 function goHome() {
   openDialog()?.close();
   state.paused = false;
@@ -272,10 +276,13 @@ function run(solo) {
 }
 
 // 창을 벗어나면 일시정지 (다른 창 클릭, 탭 전환)
+let countTimer = 0;
 function pauseGame() {
   if (state.scene === 'title') return pauseTitleBgm();   // 시작 화면: 타이틀 브금만 멈춤 (돌아오면 다시)
 
   if (state.scene !== 'play' || state.paused) return;
+  clearTimeout(countTimer);
+  state.countdownUntil = 0;   // 카운트다운 중에 다시 멈추면 처음부터
   state.paused = true;
   state.slideHeld = false;
   stopSfx('slide');
@@ -286,9 +293,14 @@ function pauseGame() {
 function resumeGame() {
   if (state.scene === 'title') return playTitleBgm();
 
+  if (!state.paused) return;
   state.paused = false;
-  resumeBgm();
-  if (IS_TOUCH) playGameBgm();
+  state.countdownUntil = performance.now() + RESUME_COUNT_MS;   // 3, 2, 1 뒤 출발, 브금도 같이
+  countTimer = setTimeout(() => {
+    if (state.scene !== 'play' || state.paused) return;
+    resumeBgm();
+    if (IS_TOUCH) playGameBgm();
+  }, RESUME_COUNT_MS);
 }
 
 addEventListener('blur', pauseGame);
@@ -348,6 +360,7 @@ addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || openDialog()) return;   // 이름 입력, 창이 열려 있으면 게임 조작 무시
   if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) { e.preventDefault(); press(); }
   if (['ArrowDown', 'KeyS'].includes(e.code)) { e.preventDefault(); state.slideHeld = true; }
+  if (['Escape', 'KeyP'].includes(e.code) && state.scene === 'play') state.paused ? resumeGame() : pauseGame();
   if (e.code === 'KeyA') {
     state.auto = !state.auto;
     state.slideHeld = false;
@@ -359,9 +372,8 @@ addEventListener('keyup', e => { if (['ArrowDown', 'KeyS'].includes(e.code)) sta
 // 터치, 클릭: 화면 왼쪽 슬라이딩(누르고 있기), 오른쪽 점프
 canvas.addEventListener('pointerdown', e => {
   const r = canvas.getBoundingClientRect();
-  if (state.paused) resumeGame();
-  else if (state.scene === 'title' && onStart(e)) return;   // START는 click에서
-  else if (state.scene === 'play' && e.clientX - r.left < r.width / 2) state.slideHeld = true;
+  if (state.paused || state.scene === 'title' && onStart(e)) return;   // 일시정지는 메뉴 버튼으로, START는 click에서
+  if (state.scene === 'play' && e.clientX - r.left < r.width / 2) state.slideHeld = true;
   else press();
 });
 // START: 손을 뗀 뒤 열기 (누르는 순간 열면 휴대폰에서 같은 터치가 모드 선택 창 버튼을 누름)
