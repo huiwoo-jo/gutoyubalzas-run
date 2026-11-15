@@ -2,8 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
   <title>천진우와 구토유발자들 RUN</title>
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/main.js"></script>
 </head>
@@ -28,16 +30,16 @@
       <button id="homeBtn" class="only-away" type="button" title="홈으로" aria-label="홈으로"><img src="assets/icons/home.svg" alt=""></button>
       <button id="infoBtn" class="only-menu" type="button" title="만든 사람들 (정보)" aria-label="만든 사람들"><img src="assets/icons/info.svg" alt=""></button>
     </nav>
-    <!-- 터치 기기 플레이 버튼 (누르고 있으면 슬라이딩) -->
-    <button id="slideBtn" class="touchBtn" type="button" aria-label="슬라이딩"><img src="assets/icons/slide.svg" alt=""></button>
-    <button id="jumpBtn" class="touchBtn" type="button" aria-label="점프"><img src="assets/icons/jump.svg" alt=""></button>
     <p id="notice" class="only-menu">비공식 팬메이드 게임 · 캐릭터 © 천진우와 구토유발자들</p>
   </div>
+  <!-- 터치 기기 플레이 버튼: 화면 양 끝 고정, 누르면 반전 (.on), SLIDE는 누르고 있기 -->
+  <button id="slideBtn" class="touchBtn" type="button" aria-label="슬라이딩"><img src="assets/icons/slide.svg" alt=""><img class="pressed" src="assets/icons/slide_on.svg" alt=""></button>
+  <button id="jumpBtn" class="touchBtn" type="button" aria-label="점프"><img src="assets/icons/jump.svg" alt=""><img class="pressed" src="assets/icons/jump_on.svg" alt=""></button>
   <!-- 터치 기기 첫 안내: 가로로 돌리기 (누르면 닫힘) -->
   <div id="rotateGuide" role="button" tabindex="0" aria-label="가로로 돌린 뒤 눌러서 시작">
     <div class="phone"><img src="assets/icons/rotate_phone.svg" alt=""></div>
     <p>화면을 가로로 돌려 주세요</p>
-    <p class="small">가로 화면에서 더 크게 즐길 수 있어요</p>
+    <p class="small">이 게임은 PC 환경에 최적화되어 있어요</p>
     <p class="small">휴대폰, 태블릿에서는 게임 중에도 '아이스크림' 8bit 편곡 버전이 흘러나와요</p>
     <p class="tap">화면을 눌러 시작</p>
   </div>
@@ -71,16 +73,18 @@
   </dialog>
   <dialog id="privacyDialog">
     <h2>기록 저장 안내</h2>
-    <div class="lineCols">   <!-- 낮고 넓은 화면은 두 묶음을 좌우로 -->
+    <div class="lineCols">   <!-- 낮고 넓은 화면은 세 묶음을 나란히 -->
       <ul class="lines page">
         <li>랭킹에 이름을 등록하면 이름, 점수, 라운드, 거리, 음표 수, 등록 시각이 서버에 저장돼요</li>
         <li>저장된 랭킹은 누구나 볼 수 있으니 실명 대신 닉네임을 써 주세요</li>
         <li>내 기록을 모아 보려고 이 브라우저에 무작위 ID를 만들어 기록과 함께 저장해요</li>
-        <li>무작위 ID는 이름이나 기기와 연결되지 않는 임의의 값이에요</li>
-        <li>마지막으로 입력한 이름과 무작위 ID는 이 브라우저에만 남아요</li>
       </ul>
       <ul class="lines page">
+        <li>무작위 ID는 이름이나 기기와 연결되지 않는 임의의 값이에요</li>
+        <li>마지막으로 입력한 이름과 무작위 ID는 이 브라우저에만 남아요</li>
         <li>브라우저의 사이트 데이터를 지우면 내 기록 목록도 처음부터 다시 모여요</li>
+      </ul>
+      <ul class="lines page">
         <li>이메일, 연락처, 위치 같은 개인정보는 모으지 않아요</li>
         <li>PC에서 게임 중 음악은 유튜브 플레이어로 재생되어 유튜브의 개인정보 정책이 적용돼요</li>
         <li>등록한 기록 삭제는 개발자에게 문의해 주세요 (<a href="https://open.kakao.com/o/sButobqi" target="_blank" rel="noopener">카카오톡 오픈채팅</a>)</li>
@@ -90,21 +94,25 @@
   </dialog>
   <dialog id="creditDialog">
     <h2>만든 사람들</h2>
-    <p class="small">천진우와 구토유발자들을 응원하는 팬이 만든 비공식 게임이에요<br>캐릭터와 음악의 권리는 각 권리자에게 있어요</p>
-    <!-- 왼쪽: 사람, 오른쪽: 게임 중 음악, 기록 저장 (낮고 넓은 화면은 2열, 그래도 넘치면 쪽 나눔) -->
+    <!-- 출연(왼쪽), 제작진, 게임 중 음악과 기록 저장(오른쪽) / 화면에 다 안 들어가면 쪽 나눔 -->
     <div class="creditCols">
-      <dl class="page">
+      <div class="page cast">
+      <p class="small">천진우와 구토유발자들을 응원하는 팬이 만든 비공식 게임이에요<br>캐릭터와 음악의 권리는 각 권리자에게 있어요</p>
+        <dl>
         <div><dt>출연</dt>
           <dd>천진우와 구토유발자들 <a href="https://www.instagram.com/gutoyubalzas/" target="_blank" rel="noopener">@gutoyubalzas</a>
             <ul class="members"><li><canvas data-pics="uwek_jinwoo"></canvas>천진우 <a href="https://www.instagram.com/1000_jinwoo/" target="_blank" rel="noopener">@1000_jinwoo</a></li><li><canvas data-pics="uwek_gito"></canvas>기토 <a href="https://www.instagram.com/_guitae/" target="_blank" rel="noopener">@_guitae</a></li><li><canvas data-pics="uwek_beobyoung"></canvas>법영이 <a href="https://www.instagram.com/beob_young/" target="_blank" rel="noopener">@beob_young</a></li><li><canvas data-pics="uwek_donghun"></canvas>양동훈 <a href="https://www.instagram.com/yadohoo/" target="_blank" rel="noopener">@yadohoo</a></li><li><canvas data-pics="uwek_jangdan"></canvas>리장단 <a href="https://www.instagram.com/leejangdan/" target="_blank" rel="noopener">@leejangdan</a></li></ul>
           </dd></div>
+        </dl>
+      </div>
+      <dl class="page staff">
         <div><dt>게임 개발</dt><dd>눈사람 <span class="small"><a href="https://open.kakao.com/o/sButobqi" target="_blank" rel="noopener">카카오톡 오픈채팅</a></span></dd></div>
         <div><dt>'아이스크림' 8bit 편곡, 효과음</dt>
           <dd>권주부 <a href="https://www.instagram.com/hj.gwon.kr/" target="_blank" rel="noopener">@hj.gwon.kr</a></dd></div>
         <div><dt>캐릭터, 그래픽 디자인</dt>
           <dd>광순 <a href="https://www.instagram.com/_gwangsun/" target="_blank" rel="noopener">@_gwangsun</a></dd></div>
       </dl>
-      <dl class="page">
+      <dl class="page info">
         <div><dt>게임 중 음악</dt><dd>PC 버전에서는 천진우의 곡이 유튜브에서 랜덤으로 재생돼요<br>모바일, 태블릿에서는 '아이스크림' 8bit 편곡 버전이 나와요</dd></div>
         <div><dt>기록 저장</dt><dd><button type="button" class="link" data-open="privacyDialog">기록 저장 안내 보기</button></dd></div>
       </dl>

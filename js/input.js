@@ -92,7 +92,7 @@ export function syncTicketLink() {
   if (!c) return;
   if (ticketLink.href !== c.link) { ticketLink.href = c.link; ticketLink.textContent = `🎫 ${c.title} 예매하기`; }
   const r = canvas.getBoundingClientRect(), k = r.width / W;
-  Object.assign(ticketLink.style, { left: `${r.left + r.width / 2}px`, top: `${r.top + 600 * k}px`, fontSize: `${20 * k}px` });
+  Object.assign(ticketLink.style, { left: `${r.left + r.width / 2}px`, top: `${r.top + 600 * k}px`, fontSize: `${Math.max(14, 20 * k)}px` });   // 휴대폰에서도 읽히게
 }
 
 // 플레이 방법(?), 만든 사람들(!) 창
@@ -255,9 +255,22 @@ syncPortrait();
 
 // 터치 플레이 버튼: 점프, 누르고 있으면 슬라이딩
 const jumpBtn = document.getElementById('jumpBtn'), slideBtn = document.getElementById('slideBtn');
-jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
-slideBtn.addEventListener('pointerdown', e => { e.preventDefault(); state.slideHeld = true; });
-for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) slideBtn.addEventListener(ev, () => { state.slideHeld = false; });
+// 누르는 동안 버튼 반전 (.on), 슬라이딩은 누른 손가락을 뗄 때까지 유지
+let slidePointer = null;
+for (const b of [jumpBtn, slideBtn]) {
+  b.addEventListener('contextmenu', e => e.preventDefault());   // 길게 누를 때 메뉴 막기
+  b.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    try { b.setPointerCapture(e.pointerId); } catch { /* 지원 안 하면 그대로 */ }   // 손가락이 버튼 밖으로 밀려도 계속 이 버튼
+    b.classList.add('on');
+    if (b === jumpBtn) jump();
+    else { slidePointer = e.pointerId; state.slideHeld = true; }
+  });
+  for (const ev of ['pointerup', 'pointercancel']) b.addEventListener(ev, e => {
+    b.classList.remove('on');
+    if (b === slideBtn && e.pointerId === slidePointer) { slidePointer = null; state.slideHeld = false; }
+  });
+}
 
 // 가로 회전 안내: 처음 한 번, 누르면 닫고 가능하면 전체 화면, 가로 고정 (iOS는 지원 안 함)
 const guide = document.getElementById('rotateGuide');
@@ -304,4 +317,4 @@ canvas.addEventListener('pointerdown', e => {
 canvas.addEventListener('pointermove', e => {
   canvas.style.cursor = state.scene === 'title' && onStart(e) ? 'pointer' : '';
 });
-addEventListener('pointerup', () => { state.slideHeld = false; });
+addEventListener('pointerup', e => { if (e.pointerId !== slidePointer) state.slideHeld = slidePointer !== null; });   // 다른 손가락을 떼도 SLIDE 버튼 슬라이딩은 유지
