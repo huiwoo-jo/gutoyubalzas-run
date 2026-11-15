@@ -1,12 +1,12 @@
 // 입력: 키보드, 터치 조작과 랭킹 이름 입력
 import { state, reset, jump, hooks, startIntro, registerScore } from './game.js';
-import { loadName, saveName } from './storage.js';
+import { loadName, saveName, refreshRanking, fetchRanking } from './storage.js';
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, shownSongs, songUrl } from './bgm.js';
 import { playTitleBgm, stopTitleBgm, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
-import { W, H, RANK_SHOW, START_BTN } from './config.js';
+import { W, H, RANK_SHOW, RANK_STORE, START_BTN } from './config.js';
 
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
@@ -41,6 +41,7 @@ hooks.onReset = () => { hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gam
 hooks.onJoin = showJoinCard;
 hooks.onGameOver = result => {
   fadeOutBgm();   // 브금은 서서히 줄이고, 목록은 게임 오버 전까지 들은 곡만
+  refreshRanking();   // 그사이 다른 사람 기록 반영
   if (result.canRank) showNameForm();
 };
 
@@ -104,8 +105,55 @@ function drawHowto() {
     names.forEach((n, i) => drawFit(g, n, x0 + cell * i, 0, cell, c.height));
   }
 }
+document.getElementById('rankBtn').addEventListener('click', openRanking);
+// 다른 창 위에 겹쳐 열기 (기록 저장 안내)
+document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.open).showModal()));
 document.getElementById('homeBtn').addEventListener('click', goHome);
 document.getElementById('infoBtn').addEventListener('click', () => { document.getElementById('creditDialog').showModal(); drawHowto(); });
+
+// 랭킹 창: 오늘, 전체 탭 (열거나 탭을 바꿀 때마다 서버에서 받기)
+const rankTabs = document.querySelectorAll('#rankDialog [data-period]');
+rankTabs.forEach(b => b.addEventListener('click', () => showRanking(b.dataset.period)));
+
+function openRanking() {
+  document.getElementById('rankDialog').showModal();
+  showRanking('all');
+}
+
+const ymd = d => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+const RANK_NOTE = {
+  today: () => `${ymd(new Date())} 오늘 등록된 기록 중 상위 ${RANK_STORE}위`,
+  all: () => `지금까지 등록된 전체 기록 중 상위 ${RANK_STORE}위`,
+  mine: () => `이 브라우저에서 등록한 내 기록 중 상위 ${RANK_STORE}개`,
+};
+
+async function showRanking(period) {
+  rankTabs.forEach(b => b.setAttribute('aria-selected', b.dataset.period === period));
+  document.getElementById('rankNote').textContent = RANK_NOTE[period]();
+  const list = document.getElementById('rankList');
+  const msg = text => { list.innerHTML = ''; const li = document.createElement('li'); li.className = 'msg'; li.textContent = text; list.append(li); };
+  msg('불러오는 중');
+  const rows = await fetchRanking(period);
+  if (!document.querySelector(`#rankDialog [data-period="${period}"][aria-selected="true"]`)) return;   // 그사이 탭 바뀜
+  if (!rows) return msg('랭킹을 불러오지 못했어요');
+  if (!rows.length) return msg({ today: '오늘 기록이 아직 없어요', mine: '등록한 기록이 아직 없어요' }[period] || '아직 기록이 없어요');
+  list.innerHTML = '';
+  rows.forEach((r, i) => list.append(rankRow(r, i + 1)));
+}
+
+// 한 줄: 순위, 이름과 기록(거리, 음표, 날짜), 라운드, 점수
+function rankRow(r, rank) {
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const li = el('li', rank <= 3 ? 'top' + rank : '');
+  const info = el('span', 'info');
+  info.append(el('span', 'name', r.name));   // 다른 사람이 쓴 이름이라 textContent로
+  const meta = [r.distance != null && `${r.distance.toLocaleString()}m`, r.notes != null && `♪ ${r.notes}`, ymd(new Date(r.created_at))].filter(Boolean);
+  info.append(el('span', 'meta', meta.join(' · ')));
+  li.append(el('span', 'no', rank), info);
+  if (r.round) li.append(el('span', 'round', `ROUND ${r.round}`));
+  li.append(el('span', 'score', r.score.toLocaleString()));
+  return li;
+}
 
 // 홈 버튼 (게임 오버, 일시정지): 시작 화면으로
 function goHome() {
