@@ -92,7 +92,8 @@ export function syncTicketLink() {
   if (!c) return;
   if (ticketLink.href !== c.link) { ticketLink.href = c.link; ticketLink.textContent = `🎫 ${c.title} 예매하기`; }
   const r = canvas.getBoundingClientRect(), k = r.width / W;
-  Object.assign(ticketLink.style, { left: `${r.left + r.width / 2}px`, top: `${r.top + 600 * k}px`, fontSize: `${Math.max(14, 20 * k)}px` });   // 휴대폰에서도 읽히게
+  const x = IS_TOUCH ? W / 2 + 250 : W / 2, y = IS_TOUCH ? 420 : 600;   // 휴대폰은 랭킹 오른쪽 (render.js drawGameOver)
+  Object.assign(ticketLink.style, { left: `${r.left + x * k}px`, top: `${r.top + y * k}px`, fontSize: `${Math.max(14, 20 * k)}px`, maxWidth: `${520 * k}px` });   // 휴대폰에서도 읽히게
 }
 
 // 플레이 방법(?), 만든 사람들(!) 창
