@@ -65,13 +65,24 @@ html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-
 /* 게임 화면 위 HTML: 게임 화면과 같은 위치, 크기 (--s: 1280px 기준 배율) */
 #ui { position: absolute; pointer-events: none; font-family: sans-serif; }
 #ui > * { pointer-events: auto; }
-/* only-title: 시작 화면, only-menu: 시작, 게임 오버, only-away: 게임 오버, 일시정지 (홈 버튼) */
-.only-title, .only-menu, .only-away { display: none !important; }
+/* only-title: 시작 화면, only-menu: 시작, 게임 오버, only-away: 게임 오버 (홈 버튼), only-play: 플레이 중, only-paused: 일시정지 */
+.only-title, .only-menu, .only-away, .only-play, .only-paused { display: none !important; }
 body[data-scene="title"] .only-title,
 body[data-scene="title"] .only-menu,
 body[data-scene="gameover"] .only-menu,
 body[data-scene="gameover"] .only-away,
-body[data-paused] .only-away { display: block !important; }
+body[data-scene="play"]:not([data-paused]) .only-play { display: block !important; }
+body[data-paused] .only-paused { display: flex !important; }
+
+/* 일시정지 버튼: 오른쪽 위 아이콘 자리, PC는 유튜브 플레이어 왼쪽 */
+body:not([data-touch])[data-scene="play"] #icons { right: calc(20px * var(--s) + var(--card-gap, 0px)); }
+/* 일시정지 메뉴: 반투명 배경, 안내 글은 render.js */
+#pauseMenu { position: absolute; left: 0; right: 0; top: calc(400px * var(--s)); justify-content: center; gap: calc(20px * var(--s)); }
+#pauseMenu button {
+  min-width: max(110px, calc(200px * var(--s))); padding: max(8px, calc(12px * var(--s))) 16px; cursor: pointer;
+  font: bold max(16px, calc(26px * var(--s))) sans-serif; border: 3px solid #ffd34d; background: #ffd34d; color: #111; box-shadow: 4px 4px 0 #000;
+}
+#pauseMenu button.sub { background: #111; color: #ffd34d; }
 
 /* 오른쪽 위 아이콘: 장면별로 보이는 것만 오른쪽부터 차례로 */
 #icons { position: absolute; top: calc(20px * var(--s)); right: calc(20px * var(--s)); display: flex; gap: calc(12px * var(--s)); }

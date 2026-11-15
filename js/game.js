@@ -19,6 +19,7 @@ export const state = {
   slideHeld: false,
   solo: null,             // 캐릭터 달리기 멤버 id (null이면 5인 달리기)
   paused: false,          // 창을 벗어나면 멈춤 (input.js)
+  countdownUntil: 0,      // 이어하기 카운트다운 끝 시각
   dist: 0,                // 총 달린 거리
   speed: SPEED,           // 현재 속도 px/s
   phase: 'gather',
@@ -91,6 +92,7 @@ export function reset() {
     flashAt: -1e9,
     popups: [],
     paused: false,
+    countdownUntil: 0,
     scene: 'play',
   });
   playSfx('gamestart');
@@ -283,8 +285,8 @@ function touches(box, item, pad = 20) {
 
 // ===== 매 프레임 =====
 export function update(dt) {
-  if (state.paused) return;
   const now = performance.now();
+  if (state.paused || now < state.countdownUntil) return;   // 일시정지, 이어하기 카운트다운 중
   if (state.scene === 'title' && state.auto) reset();
   if (state.scene === 'intro' && now - state.introStart > INTRO_MS) { reset(); state.flashAt = now; state.hintAt = now; }
   if (state.scene === 'fall' && now - state.fallTime > 1000) gameOver();
