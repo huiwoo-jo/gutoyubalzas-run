@@ -351,7 +351,6 @@ function drawTitle() {
   MEMBERS.forEach(m => drawCover(m.common));
   drawCover('title');
   drawCover('button');
-  drawText('Space / 탭으로 시작 · ↑ 점프 · ↓ 슬라이딩 · 음표를 모으세요!', H - 30, 22);
 }
 
 // 시작 연출: 로고, 버튼 페이드 아웃 후 천진우가 무대 가운데로 걸어옴
@@ -392,7 +391,7 @@ function drawGameOver() {
   const songs = playedSongs().length > 0;
   drawRanking(songs ? W / 2 - 190 : W / 2, 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
   if (songs) drawSongs(SONGS_X, SONGS_Y, RANK_SHOW);
-  drawText('Space / 탭 다시 하기', H - 30, 24);
+  drawText('Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
 }
 
 export function render() {
@@ -406,4 +405,9 @@ export function render() {
   drawProgress();
   drawHud();
   if (state.scene === 'gameover') drawGameOver();
+  if (state.paused) {
+    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
+    drawText('일시정지', H / 2 - 20, 56);
+    drawText('Space 또는 클릭으로 다시 시작', H / 2 + 40, 28, '#ffd34d');
+  }
 }

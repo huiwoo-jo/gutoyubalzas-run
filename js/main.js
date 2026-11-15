@@ -9,12 +9,15 @@ import { loadAds } from './ads.js';
 
 const canvas = document.getElementById('game');
 const nameForm = document.getElementById('nameForm');
+const ui = document.getElementById('ui');
 
 // 비율 유지, 창 가운데에 꽉 차게
 function fit() {
   const s = Math.min(innerWidth / W, innerHeight / H);
   const cw = W * s, ch = H * s, left = (innerWidth - cw) / 2, top = (innerHeight - ch) / 2;
   Object.assign(canvas.style, { width: cw + 'px', height: ch + 'px', left: left + 'px', top: top + 'px' });
+  Object.assign(ui.style, { width: cw + 'px', height: ch + 'px', left: left + 'px', top: top + 'px' });
+  ui.style.setProperty('--s', s);
   nameForm.style.left = left + cw / 2 + 'px';        // 이름 입력칸은 게임 화면 60% 높이
   nameForm.style.top = top + ch * 0.6 + 'px';
 }
@@ -29,6 +32,8 @@ function loop(now) {
   render();
   syncSongLinks();
   syncTicketLink();
+  if (document.body.dataset.scene !== state.scene) document.body.dataset.scene = state.scene;   // 장면별 HTML 표시 (style.css)
+  document.body.toggleAttribute('data-paused', state.paused);
   syncBgmCard(['intro', 'play', 'fall'].includes(state.scene));
   requestAnimationFrame(loop);
 }

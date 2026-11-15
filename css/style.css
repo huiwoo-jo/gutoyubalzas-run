@@ -59,3 +59,59 @@ html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-
 }
 
 #nameForm button.cancel { background: #111; color: #ffd34d; }
+
+/* 게임 화면 위 HTML: 게임 화면과 같은 위치, 크기 (--s: 1280px 기준 배율) */
+#ui { position: absolute; pointer-events: none; font-family: sans-serif; }
+#ui > * { pointer-events: auto; }
+/* only-title: 시작 화면, only-menu: 시작, 게임 오버, only-away: 게임 오버, 일시정지 (홈 버튼) */
+.only-title, .only-menu, .only-away { display: none !important; }
+body[data-scene="title"] .only-title,
+body[data-scene="title"] .only-menu,
+body[data-scene="gameover"] .only-menu,
+body[data-scene="gameover"] .only-away,
+body[data-paused] .only-away { display: block !important; }
+
+/* 오른쪽 위 아이콘: 장면별로 보이는 것만 오른쪽부터 차례로 */
+#icons { position: absolute; top: calc(20px * var(--s)); right: calc(20px * var(--s)); display: flex; gap: calc(12px * var(--s)); }
+#icons > * { width: calc(44px * var(--s)); height: calc(44px * var(--s)); padding: 0; border: 0; background: none; cursor: pointer; }
+#ui svg { display: block; width: 100%; height: 100%; filter: drop-shadow(calc(3px * var(--s)) calc(3px * var(--s)) 0 #000); }
+
+#notice {
+  position: absolute; left: 0; right: 0; bottom: calc(6px * var(--s)); margin: 0; text-align: center;
+  font-size: calc(14px * var(--s)); color: #aaa; text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+}
+/* 플레이 방법, 만든 사람들 창 */
+dialog {
+  max-width: min(560px, 90vw); max-height: 86vh; overflow: auto; padding: 20px 24px;
+  border: 3px solid #ffd34d; box-shadow: 6px 6px 0 #000; background: #111; color: #fff;
+  font: 15px/1.6 sans-serif;
+}
+dialog::backdrop { background: rgba(0, 0, 0, .6); }
+dialog h2 { margin: 0 0 10px; font-size: 20px; color: #ffd34d; }
+dialog ul { margin: 0; padding-left: 1.2em; }
+dialog dl { margin: 0; }
+dialog dt { margin-top: 10px; font-size: 13px; color: #aaa; }
+dialog dd { margin: 0; font-weight: bold; }
+dialog .members { margin-top: 4px; font-weight: normal; font-size: 14px; }
+dialog .small { margin: 0 0 6px; font-size: 13px; color: #ccc; }
+dialog a { color: #f9c; }
+dialog form { margin-top: 16px; text-align: right; }
+dialog form button {
+  padding: 6px 16px; font: bold 15px sans-serif; cursor: pointer;
+  border: 3px solid #ffd34d; background: #ffd34d; color: #111;
+}
+
+/* 플레이 방법: 왼쪽 그림, 오른쪽 설명 */
+dialog .howto { padding: 0; list-style: none; }
+dialog .howto li { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-top: 1px dashed #333; }
+dialog .howto li:first-child { border-top: 0; }
+dialog .howto canvas { flex: none; width: 150px; height: 56px; image-rendering: pixelated; }
+dialog .howto p { margin: 0; font-size: 14px; line-height: 1.5; }
+dialog .howto b { margin-right: 4px; color: #ffd34d; }
+@media (max-width: 480px) { dialog .howto canvas { width: 100px; height: 40px; } }
+
+/* 만든 사람들: 멤버 이름 앞 우웩이 */
+dialog .members { list-style: none; padding: 0; }
+dialog .members li { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+dialog .members canvas { width: 28px; height: 28px; }
