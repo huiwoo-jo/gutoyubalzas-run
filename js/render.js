@@ -5,7 +5,7 @@ import {
   OBSTACLES, IS_TOUCH, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
-import { state, speedNow, multiplier, pose, phaseDist } from './game.js';
+import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers } from './game.js';
 import { loadRanking, loadMyBest } from './storage.js';
 import { nameFormOpen } from './input.js';
 import { playedSongs, shownSongs } from './bgm.js';
@@ -32,7 +32,7 @@ function drawUwek(name, cx, cy, h) {
 // ===== 배경 =====
 // 모으기: PANEL_ORDER 순서로 배경 패널 흐름 (구간이 바뀌면 처음부터)
 function drawPanels() {
-  const bgX = phaseDist() * BG_PARALLAX;
+  const bgX = mapDist() * BG_PARALLAX;
   const first = Math.floor(bgX / W);
   for (let p = first; p <= first + 1 && p < PANEL_ORDER.length; p++) {
     const x = Math.round(p * W - bgX);
@@ -155,8 +155,9 @@ function drawWorld() {
     if (!n.taken) drawNote(Math.round(n.x - dist), Math.round(n.y + Math.sin(t / 200 + n.x) * 4));
   }
   // 회복 하트 (위아래로 둥실)
+  const heartIcon = state.solo ? 'uwek_' + state.solo : HEART_IMG;   // 캐릭터 달리기는 그 멤버 우웩이
   for (const h of state.heartItems) {
-    if (!h.taken) drawUwek(HEART_IMG, h.x - dist, h.y + Math.sin(t / 250) * 6, 56);
+    if (!h.taken) drawUwek(heartIcon, h.x - dist, h.y + Math.sin(t / 250) * 6, 56);
   }
 
   // 멤버 (뒤에서 앞 순서, 무적 시간 깜빡임)
@@ -243,14 +244,17 @@ function drawProgress() {
     ctx.fillText(`FEVER TIME · 음표 ×${FEVER_NOTE_MULT}`, W / 2, y - 2);
     return;
   }
-  const progress = Math.min(1, local / GATHER_LENGTH);
+  const progress = Math.min(1, mapDist() / GATHER_LENGTH);
   ctx.fillStyle = '#444'; ctx.fillRect(x0, y - 4, x1 - x0, 8);
   ctx.fillStyle = '#ffd34d'; ctx.fillRect(x0, y - 4, (x1 - x0) * progress, 8);
+  ctx.fillStyle = '#ff6bd5';   // 중간 피버 지점
+  for (const at of midFevers()) ctx.fillRect(Math.round(x0 + (x1 - x0) * at / GATHER_LENGTH) - 3, y - 10, 6, 20);
   MEMBERS.forEach((m, i) => {
+    if (state.solo && m.id !== state.solo) return;   // 캐릭터 달리기는 고른 멤버만
     const joined = state.joined.has(m.id);
     const at = joined ? progress : m.joinDist / GATHER_LENGTH;
     ctx.globalAlpha = joined ? 1 : 0.35;
-    drawUwek('uwek_' + m.id, x0 + (x1 - x0) * at - (joined ? i * 16 : 0), y, 48);
+    drawUwek('uwek_' + m.id, x0 + (x1 - x0) * at - (joined && !state.solo ? i * 16 : 0), y, 48);
     ctx.globalAlpha = 1;
   });
 }
@@ -266,7 +270,7 @@ function drawHud() {
   // 하트 (우웩이): 남은 하트는 진하게, 잃은 하트는 흐리게
   for (let i = 0; i < MAX_HEARTS; i++) {
     ctx.globalAlpha = i < state.hearts ? 1 : 0.2;
-    drawUwek(HEART_IMG, 44 + i * 46, 126, 44);
+    drawUwek(state.solo ? 'uwek_' + state.solo : HEART_IMG, 44 + i * 46, 126, 44);   // 캐릭터 달리기는 그 멤버 우웩이
   }
   ctx.globalAlpha = 1;
 
@@ -308,7 +312,7 @@ function drawRanking(x, y, count, highlight) {
   const half = 170 * m, row = 34 * m;
   ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(x - half, y - 40 * m, half * 2, 52 * m + Math.max(1, list.length) * row);
   ctx.textAlign = 'center'; ctx.font = `bold ${24 * m}px sans-serif`; ctx.fillStyle = '#ffd34d';
-  ctx.fillText('RANKING', x, y - 8 * m);
+  ctx.fillText(state.solo ? 'RANKING · 캐릭터 달리기' : 'RANKING', x, y - 8 * m);   // 이번 모드 랭킹
   ctx.font = `bold ${22 * m}px sans-serif`;
   if (!list.length) { ctx.fillStyle = '#aaa'; ctx.fillText('아직 기록이 없어요', x, y + 30 * m); }
   list.forEach((r, i) => {
@@ -374,7 +378,7 @@ function drawIntro(t) {
   const walking = k < 1;
   const step = walking ? Math.floor(e / 160) % RUN_FRAMES : 0;   // 걷는 박자 (달리기보다 느리게)
   const bob = walking && step % 2 ? -4 : 0;                       // 저벅저벅
-  drawMember('jinwoo', x, STAGE_FLOOR + bob, { frame: step });
+  drawMember(state.solo || 'jinwoo', x, STAGE_FLOOR + bob, { frame: step });   // 캐릭터 달리기는 고른 멤버가 걸어 나옴
 }
 
 function drawGameOver() {
