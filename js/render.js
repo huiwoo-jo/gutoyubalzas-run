@@ -34,10 +34,11 @@ function drawUwek(name, cx, cy, h) {
 function drawPanels() {
   const bgX = mapDist() * BG_PARALLAX;
   const first = Math.floor(bgX / W);
-  for (let p = first; p <= first + 1 && p < PANEL_ORDER.length; p++) {
+  for (let p = first; p <= first + 1; p++) {
     const x = Math.round(p * W - bgX);
-    ctx.drawImage(IMG['bg_far' + PANEL_ORDER[p]], x, 0);
-    if (PANEL_ORDER[p] === 1) {                       // 빈 벽 패널: 가운데 조명 아래 광고판
+    const end = p >= PANEL_ORDER.length;   // 맵 끝 뒤 (5인 달리기 피버 기다림): 빈 벽 패널, 광고판 없음
+    ctx.drawImage(IMG['bg_far' + (end ? 1 : PANEL_ORDER[p])], x, 0);
+    if (!end && PANEL_ORDER[p] === 1) {                       // 빈 벽 패널: 가운데 조명 아래 광고판
       const ad = adFor(state.round, p);
       if (ad) drawBillboard(ad, x + 400, 168);
     }
