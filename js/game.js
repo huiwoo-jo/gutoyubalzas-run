@@ -56,11 +56,11 @@ export function startIntro(solo = null) {
   state.solo = solo;
   state.scene = 'intro';
   state.introStart = performance.now();
-  if (solo) playSfx('join_' + solo);   // 캐릭터 달리기: 고른 멤버 합류음
+  playSfx(solo ? 'join_' + solo : 'intro_crew');   // 등장 연출: 캐릭터 달리기는 그 멤버 합류음
 }
 
-// 알림: 새 판 시작, 게임 오버, 멤버 합류 (input.js에서 처리)
-export const hooks = { onReset() {}, onGameOver() {}, onJoin() {} };
+// 알림: 새 판 시작, 넘어짐(마지막 충돌), 게임 오버, 멤버 합류 (input.js에서 처리)
+export const hooks = { onReset() {}, onFall() {}, onGameOver() {}, onJoin() {} };
 
 export function reset() {
   Object.assign(state, {
@@ -89,6 +89,7 @@ export function reset() {
     paused: false,
     scene: 'play',
   });
+  playSfx('gamestart');
   hooks.onReset();
 }
 
@@ -235,6 +236,7 @@ function autoPilot(speed) {
 // 충돌: 하트 1개 차감 후 잠깐 무적, 하트가 없으면 넘어짐 (계속 달리면 true)
 function hit() {
   state.hearts--;
+  playSfx('hit');
   if (state.hearts > 0) {
     state.invincibleUntil = performance.now() + INVINCIBLE_MS;
     addPopup('아야! 우웩이 -1', '#f77');
@@ -243,6 +245,7 @@ function hit() {
   state.scene = 'fall';
   stopSfx('slide');
   state.fallTime = performance.now();
+  hooks.onFall();   // 브금 줄이기 (타격음, 게임 오버음과 겹치지 않게)
   return false;
 }
 
@@ -365,6 +368,7 @@ export function update(dt) {
   for (const h of state.heartItems) {
     if (!h.taken && touches(box, h, 28)) {
       h.taken = true;
+      playSfx('eat_uwek');
       if (state.hearts < MAX_HEARTS) { state.hearts++; addPopup('우웩이 +1', '#ff8fb1'); }
     }
   }
