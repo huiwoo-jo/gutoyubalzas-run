@@ -39,15 +39,36 @@
   <div id="rotateGuide" role="button" tabindex="0" aria-label="가로로 돌린 뒤 눌러서 시작">
     <div class="phone"><img src="assets/icons/rotate_phone.svg" alt=""></div>
     <p>화면을 가로로 돌려 주세요</p>
-    <p class="small">이 게임은 PC 환경에 최적화되어 있어요</p>
-    <p class="small">휴대폰, 태블릿에서는 게임 중에도 '아이스크림' 8bit 편곡 버전이 흘러나와요</p>
+    <p class="small">PC 환경에서는 천진우 유튜브에서 음악이 랜덤 재생이 돼요</p>
+    <p class="small">휴대폰, 태블릿에서는 게임 중에는 '이번 방학엔 공부 좀 해라' 8bit 편곡 버전이 사용돼요</p>
     <p class="tap">화면을 눌러 시작</p>
   </div>
+  <!-- START 후 달리기 모드 선택 (input.js) -->
+  <dialog id="modeDialog">
+    <h2>달리기 모드</h2>
+    <div class="modeView" data-view="modes">
+      <div class="modes">
+        <button type="button" class="modePick" data-mode="crew"><canvas data-pics="play_jinwoo,play_gito,play_beobyoung,play_donghun,play_jangdan"></canvas><b>5인 달리기</b><span>천진우부터 멤버를 모으며 달려요</span></button>
+        <button type="button" class="modePick" data-mode="solo"><canvas data-pics="play_jinwoo"></canvas><b>캐릭터 달리기</b><span>멤버 한 명을 골라 혼자 달려요</span></button>
+      </div>
+    </div>
+    <div class="modeView" data-view="members" hidden>
+      <p class="small">함께 달릴 멤버를 골라 주세요</p>
+      <div class="memberPicks">
+        <button type="button" class="memberPick" data-solo="jinwoo"><canvas data-pics="play_jinwoo"></canvas><b>천진우</b></button>
+        <button type="button" class="memberPick" data-solo="gito"><canvas data-pics="play_gito"></canvas><b>기토</b></button>
+        <button type="button" class="memberPick" data-solo="beobyoung"><canvas data-pics="play_beobyoung"></canvas><b>법영이</b></button>
+        <button type="button" class="memberPick" data-solo="donghun"><canvas data-pics="play_donghun"></canvas><b>양동훈</b></button>
+        <button type="button" class="memberPick" data-solo="jangdan"><canvas data-pics="play_jangdan"></canvas><b>리장단</b></button>
+      </div>
+    </div>
+    <form method="dialog"><button type="button" class="back" hidden>뒤로</button><button>닫기</button></form>
+  </dialog>
   <dialog id="helpDialog">
     <h2>플레이 방법</h2>
     <!-- data-pics: IMG 이름 (쉼표 구분), 창을 열 때 그림 (input.js) -->
     <ul class="howto page">
-      <li><canvas data-pics="jinwoo_run1"></canvas><p><b>START</b><br>버튼을 누르면 천진우가 달리기 시작해요</p></li>
+      <li><canvas data-pics="jinwoo_run1"></canvas><p><b>START</b><br>버튼을 누르고 달리기 모드를 골라요<br>5인 달리기와 멤버 한 명의 캐릭터 달리기가 있어요</p></li>
       <li><canvas data-pics="jinwoo_jump"></canvas><p><b>점프</b><br>Space, ↑ 키나 점프 버튼(화면 오른쪽)을 눌러요<br>바닥의 앰프를 뛰어넘어요</p></li>
       <li><canvas data-pics="jinwoo_run1" data-squash></canvas><p><b>슬라이딩</b><br>↓ 키나 슬라이딩 버튼(화면 왼쪽)을 누르고 있어요<br>천장 조명 아래로 지나가요</p></li>
       <li><canvas data-pics="gito_run1,beobyoung_run1,donghun_run1,jangdan_run1"></canvas><p><b>멤버 합류</b><br>멤버 패널이 나오면 한 명씩 합류해요<br>모인 인원만큼 점수가 배로 올라요</p></li>
@@ -61,7 +82,11 @@
   </dialog>
   <dialog id="rankDialog">
     <h2>랭킹</h2>
-    <div class="tabs" role="tablist">
+    <div class="tabs" role="tablist" aria-label="달리기 모드">
+      <button type="button" role="tab" data-group="crew" aria-selected="true">5인 달리기</button>
+      <button type="button" role="tab" data-group="solo">캐릭터 달리기</button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="기간">
       <button type="button" role="tab" data-period="today">오늘</button>
       <button type="button" role="tab" data-period="all" aria-selected="true">전체</button>
       <button type="button" role="tab" data-period="mine">내 기록</button>
@@ -75,7 +100,7 @@
     <h2>기록 저장 안내</h2>
     <div class="lineCols">   <!-- 낮고 넓은 화면은 세 묶음을 나란히 -->
       <ul class="lines page">
-        <li>랭킹에 이름을 등록하면 이름, 점수, 라운드, 거리, 음표 수, 등록 시각이 서버에 저장돼요</li>
+        <li>랭킹에 이름을 등록하면 이름, 점수, 달리기 모드, 라운드, 거리, 음표 수, 등록 시각이 서버에 저장돼요</li>
         <li>저장된 랭킹은 누구나 볼 수 있으니 실명 대신 닉네임을 써 주세요</li>
         <li>내 기록을 모아 보려고 이 브라우저에 무작위 ID를 만들어 기록과 함께 저장해요</li>
       </ul>
@@ -98,7 +123,7 @@
     <!-- 출연(왼쪽), 제작진, 게임 중 음악과 기록 저장(오른쪽) / 화면에 다 안 들어가면 쪽 나눔 -->
     <div class="creditCols">
       <div class="page cast">
-      <p class="small">천진우와 구토유발자들을 응원하는 팬이 만든 비공식 게임이에요<br>캐릭터와 음악의 권리는 각 권리자에게 있어요</p>
+      <p class="small">천진우와 구토유발자들을 응원하는 팬들이 만든 비공식 게임이에요<br>캐릭터와 음악의 권리는 각 권리자에게 있어요</p>
         <dl>
         <div><dt>출연</dt>
           <dd>천진우와 구토유발자들 <a href="https://www.instagram.com/gutoyubalzas/" target="_blank" rel="noopener">@gutoyubalzas</a>
@@ -108,13 +133,14 @@
       </div>
       <dl class="page staff">
         <div><dt>게임 개발</dt><dd>눈사람 <span class="small"><a href="https://open.kakao.com/o/sButobqi" target="_blank" rel="noopener">카카오톡 오픈채팅</a></span></dd></div>
-        <div><dt>'아이스크림' 8bit 편곡, 효과음</dt>
+        <div><dt>대기실 - 브금 '아이스크림', 게임 중 브금 - '이번 방학엔 공부 좀 해라' 8bit 편곡, 효과음</dt>
           <dd>권주부 <a href="https://www.instagram.com/hj.gwon.kr/" target="_blank" rel="noopener">@hj.gwon.kr</a></dd></div>
         <div><dt>캐릭터, 그래픽 디자인</dt>
           <dd>광순 <a href="https://www.instagram.com/_gwangsun/" target="_blank" rel="noopener">@_gwangsun</a></dd></div>
       </dl>
       <dl class="page info">
-        <div><dt>게임 중 음악</dt><dd>PC 버전에서는 천진우의 곡이 유튜브에서 랜덤으로 재생돼요<br>모바일, 태블릿에서는 '아이스크림' 8bit 편곡 버전이 나와요</dd></div>
+        <div><dt>대기 중 음악</dt><dd>'아이스크림' 8bit 편곡 버전이 나와요</dd></div>
+        <div><dt>게임 중 음악</dt><dd>PC 버전에서는 천진우의 곡이 유튜브에서 랜덤으로 재생돼요<br>모바일, 태블릿에서는 '이번 방학엔 공부 좀 해라' 8bit 편곡 버전이 나와요</dd></div>
         <div><dt>기록 저장</dt><dd><button type="button" class="link" data-open="privacyDialog">기록 저장 안내 보기</button></dd></div>
       </dl>
     </div>

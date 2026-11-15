@@ -32,3 +32,8 @@ create index if not exists run_rankings_player_idx on public.run_rankings (playe
 
 -- members(모인 인원) 칸은 더 이상 쓰지 않음 (라운드로 대신, 지우려면 아래 실행)
 -- alter table public.run_rankings drop column if exists members;
+
+-- 달리기 모드: 'crew' 5인 달리기, 멤버 id 캐릭터 달리기 (기존 기록은 crew)
+alter table public.run_rankings add column if not exists mode text not null default 'crew'
+  check (mode in ('crew', 'jinwoo', 'gito', 'beobyoung', 'donghun', 'jangdan'));
+create index if not exists run_rankings_mode_idx on public.run_rankings (mode, score desc);

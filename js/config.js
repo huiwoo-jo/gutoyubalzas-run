@@ -14,6 +14,7 @@ export const panelDist = i => Math.max(0, i - 0.3) * W / BG_PARALLAX;    // i번
 // 한 사이클
 export const GATHER_LENGTH = (PANEL_ORDER.length - 1) * W / BG_PARALLAX;
 export const FEVER_LENGTH = 6000;        // 피버 타임 거리
+export const SOLO_FEVERS = 2;            // 캐릭터 달리기: 한 바퀴 중간에 더 넣는 피버 횟수 (맵은 이어서)
 export const FEVER_NOTE_MULT = 2;        // 피버 중 음표 점수 배수
 export const FEVER_NOTE_GAP = 110;       // 피버 중 음표 간격
 
@@ -54,7 +55,6 @@ export const NEAR_MISS_PX = 18;          // 이만큼 가깝게 피하면 아슬
 export const NEAR_MISS_SCORE = 30;
 
 // 저장
-// TODO: 현재는 로컬 환경에서만 저장됨
 export const NAME_KEY = 'gutoRun.name';       // 마지막 입력 이름 (브라우저)
 export const PLAYER_KEY = 'gutoRun.player';   // 내 기록용 무작위 ID (브라우저)
 export const RANK_SHOW = 5;              // 게임 오버 화면에 보여 줄 순위 수
@@ -75,7 +75,7 @@ export const OBSTACLES = {
   jump:  { img: 'amp',   w: 56,  h: 64 },             // 바닥 앰프 (점프로 넘기)
   slide: { img: 'truss', w: 120, h: GROUND_Y - 95 },  // 천장 조명 트러스 (슬라이딩으로 지나가기, 위에서 바닥 95px 위까지)
 };
-export const HEART_IMG = 'uwek_default';  // 목숨으로 쓰는 우웩이
+export const HEART_IMG = 'uwek_default';  // 5인 달리기에서 목숨으로 쓰는 우웩이 (캐릭터 달리기는 그 멤버 우웩이)
 
 // 터치 기기 (휴대폰, 태블릿): 플레이 버튼, 가로 회전 안내, 유튜브 대신 타이틀 브금
 export const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
@@ -87,6 +87,8 @@ export const BGM_VOLUME = 50;            // 0~100
 // 효과음, 타이틀 브금 (assets/sounds)
 export const SFX_VOLUME = 0.9;           // 0~1
 export const TITLE_BGM_VOLUME = 0.35;    // 0~1 (효과음이 묻히지 않게 낮게)
+// 브금 빠르기: 라운드마다 ROUND_STEP씩 (최대 MAX), 피버 타임은 FEVER만큼 더 (유튜브는 지원하는 배속 중 가까운 값)
+export const TEMPO = { ROUND_STEP: 0.05, MAX: 1.15, FEVER: 0.1 };
 export const TOUCH_BOOST = 1.6;          // 휴대폰, 태블릿은 스피커가 작아 전체 소리를 키움 (리미터로 찢어짐 방지)
 
 // 광고판: Mortals Log의 공연, 앨범을 랜덤사용

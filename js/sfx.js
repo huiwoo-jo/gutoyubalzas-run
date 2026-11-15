@@ -2,8 +2,8 @@
 // 효과음은 Web Audio: 처음에 한 번 받아 디코딩, 지연 없이 재생하고 겹쳐도 끊기지 않음
 import { SFX_VOLUME, TITLE_BGM_VOLUME, TOUCH_BOOST, IS_TOUCH } from './config.js';
 
-const SFX = ['jump', 'slide', 'gameover', 'eat', 'join_gito', 'join_beobyoung', 'join_donghun', 'join_jangdan'];
-const ONE_AT_A_TIME = new Set(['jump', 'slide', 'gameover']);   // 다시 나면 앞 소리 끊기
+const SFX = ['jump', 'slide', 'gameover', 'eat', 'eat_uwek', 'hit', 'gamestart', 'intro_crew', 'join_jinwoo', 'join_gito', 'join_beobyoung', 'join_donghun', 'join_jangdan'];
+const ONE_AT_A_TIME = new Set(['jump', 'slide', 'hit', 'gamestart', 'gameover']);   // 다시 나면 앞 소리 끊기
 
 const url = name => `assets/sounds/${name}.m4a`;
 // iOS: 게임 소리로 재생 (무음 모드, 낮은 음량 영향 줄이기, 지원하는 Safari만)
@@ -34,7 +34,7 @@ addEventListener('keydown', unlock);
 
 export function playSfx(name) {
   const buf = buffers[name];
-  if (!buf) return;   // 없는 효과음 (천진우 합류 등), 아직 불러오는 중
+  if (!buf) return;   // 없는 효과음, 아직 불러오는 중
   if (ONE_AT_A_TIME.has(name)) stopSfx(name);
   const src = ctx.createBufferSource();
   src.buffer = buf;
@@ -52,12 +52,12 @@ export function stopSfx(name) {
   src.stop();
 }
 
-// 타이틀 브금: Web Audio로 반복 (iOS는 오디오 태그 볼륨을 무시해 효과음보다 크게 들림)
+// 타이틀 브금: Web Audio로 반복
 const titleOut = ctx.createGain();
 titleOut.gain.value = TITLE_BGM_VOLUME * boost;
 titleOut.connect(master);
 let titleBuf = null, titleSrc = null, titleAt = 0, titleOffset = 0, titleWanted = false;
-fetch(url('title_bgm_icecream'))
+fetch(url('title_bgm'))
   .then(r => r.arrayBuffer())
   .then(b => ctx.decodeAudioData(b))
   .then(buf => { titleBuf = buf; if (titleWanted) playTitleBgm(); })
@@ -75,13 +75,42 @@ export function playTitleBgm() {
   titleAt = ctx.currentTime;
 }
 
+// 게임 플레이 브금: Web Audio로 반복
+const gameBgmOut = ctx.createGain();
+gameBgmOut.gain.value = TITLE_BGM_VOLUME * boost;
+gameBgmOut.connect(master);
+let gameBgmBuf = null, gameBgmSrc = null, gameBgmAt = 0, gameBgmOffset = 0, gameBgmWanted = false;
+if (IS_TOUCH) fetch(url('game_bgm'))   // PC는 유튜브 브금이라 받지 않음 (2MB)
+  .then(r => r.arrayBuffer())
+  .then(b => ctx.decodeAudioData(b))
+  .then(buf => { gameBgmBuf = buf; if (gameBgmWanted) playGameBgm(); })
+  .catch(err => console.warn('게임 브금을 불러오지 못했어요', err));
+
+let gameFade = 0;   // 진행 중인 페이드 아웃 (새로 재생하면 취소)
+let gameRate = 1;   // 게임 브금 빠르기
+export function playGameBgm() {
+  gameBgmWanted = true;
+  clearTimeout(gameFade);
+  gameBgmOut.gain.cancelScheduledValues(ctx.currentTime);
+  gameBgmOut.gain.setValueAtTime(TITLE_BGM_VOLUME * boost, ctx.currentTime);   // 페이드 아웃 뒤 음량 되돌리기
+  if (gameBgmSrc || !gameBgmBuf) return;   // 재생 중, 아직 불러오는 중이면 끝나고 재생
+  unlock();
+  gameBgmSrc = ctx.createBufferSource();
+  gameBgmSrc.buffer = gameBgmBuf;
+  gameBgmSrc.loop = true;
+  gameBgmSrc.playbackRate.value = gameRate;
+  gameBgmSrc.connect(gameBgmOut);
+  gameBgmSrc.start(0, gameBgmOffset % gameBgmBuf.duration);
+  gameBgmAt = ctx.currentTime;
+}
+
 // 자동 재생 차단(소리 꺼진 상태)도 멈춘 것으로 봄
 export const titleBgmPaused = () => !titleSrc || ctx.state !== 'running';
 
 export function pauseTitleBgm() {
   titleWanted = false;
   if (!titleSrc) return;
-  titleOffset += ctx.currentTime - titleAt;   // 이어서 재생할 위치
+  titleOffset += ctx.currentTime - titleAt;   // 일시정지한 위치 기억
   titleSrc.stop();
   titleSrc = null;
 }
@@ -89,4 +118,34 @@ export function pauseTitleBgm() {
 export function stopTitleBgm() {
   pauseTitleBgm();
   titleOffset = 0;
+}
+
+export function pauseGameBgm() {
+  gameBgmWanted = false;
+  if (!gameBgmSrc) return;
+  gameBgmOffset += ctx.currentTime - gameBgmAt;   // 일시정지한 위치 기억
+  gameBgmSrc.stop();
+  gameBgmSrc = null;
+}
+
+export function stopGameBgm() {
+  pauseGameBgm();
+  gameBgmOffset = 0;
+}
+
+// 게임 오버 직전: ms 동안 줄인 뒤 멈춤
+export function fadeOutGameBgm(ms = 800) {
+  gameBgmWanted = false;
+  const t = ctx.currentTime;
+  gameBgmOut.gain.cancelScheduledValues(t);
+  gameBgmOut.gain.setValueAtTime(gameBgmOut.gain.value, t);
+  gameBgmOut.gain.linearRampToValueAtTime(0, t + ms / 1000);
+  clearTimeout(gameFade);
+  gameFade = setTimeout(stopGameBgm, ms);
+}
+
+// 게임 브금 빠르기 (라운드, 피버 타임), 0.5초에 걸쳐 바꿈
+export function setGameBgmRate(rate) {
+  gameRate = rate;
+  if (gameBgmSrc) gameBgmSrc.playbackRate.setTargetAtTime(rate, ctx.currentTime, 0.15);
 }
