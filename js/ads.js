@@ -43,7 +43,7 @@ export async function loadAds() {
 
   try {
     const [concerts, albumRows] = await Promise.all([
-      get(`concerts?select=title,start_date,end_date,location,poster_image_path,ticketing&is_published=eq.true`
+      get(`concerts?select=title,start_date,end_date,location,poster_image_path,ticketing&is_published=eq.true`   // 비공개 제외 (RLS로도 막힘)
         + `&or=(start_date.gte.${today},end_date.gte.${today})&order=start_date&limit=1`),
       get('albums?select=album_type,volume,title,image_key,release_date,cover_image_path,album_links(kind,url)&is_published=eq.true'),
     ]);
@@ -53,7 +53,7 @@ export async function loadAds() {
         tag: 'UPCOMING', title: c.title,
         lines: [`${dayLabel(c.start_date)}${c.end_date ? ' ~' : ''}  ${dDay(c.start_date)}`, c.location || ''],
         img: loadImage(c.poster_image_path && storageUrl(c.poster_image_path)),
-        link: (c.ticketing || []).map(t => t.ticketingLink).find(u => /^https?:\/\//.test(u || '')) || '',
+        link: (c.ticketing || []).filter(t => !t.soldOut).map(t => t.ticketingLink).find(u => /^https?:\/\//.test(u || '')) || '',   // 매진 항목 제외
       };
     }
     albums = albumRows
@@ -73,7 +73,7 @@ export async function loadAds() {
 // 새 게임: 광고 재배치
 export function resetAds() { picked = {}; last = { round: -1, ad: false, kind: '' }; }
 
-// 게임 오버 예매하기 버튼용 공연 (예매 링크 없으면 null)
+// 게임 오버 예매하기 버튼용 공연 (비공개, 매진, 예매 링크 없으면 null)
 export const ticketConcert = () => (concert && concert.link ? concert : null);
 
 // 빈 벽 자리별 광고 선택 (앞에서부터 차례로 호출)
