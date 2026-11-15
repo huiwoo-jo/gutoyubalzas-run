@@ -1,4 +1,5 @@
 html, body { margin: 0; height: 100%; background: #111; overflow: hidden; touch-action: none; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }   /* 가로로 돌릴 때 글자 자동 확대 막기 */
 #game { display: block; image-rendering: pixelated; position: absolute; }   /* 위치, 크기: main.js fit() */
 
 /* 브금 카드: 유튜브 플레이어(정책상 200×200, 숨기지 않음), 곡 제목, 가수 */
@@ -126,8 +127,9 @@ dialog form button {
 dialog .howto { padding: 0; list-style: none; }
 dialog .howto li { display: flex; align-items: center; gap: 14px; padding: 8px 0; border-top: 1px dashed #333; }
 dialog .howto li:first-child { border-top: 0; }
-dialog .howto canvas { flex: none; width: clamp(90px, 11vw, 190px); height: clamp(34px, 6vh, 70px); image-rendering: pixelated; }
-dialog .howto canvas { flex: none; width: clamp(90px, 11vw, 190px); height: clamp(34px, 6dvh, 70px); image-rendering: pixelated; }
+dialog .howto canvas, dialog .howto .pic { flex: none; width: clamp(90px, 11vw, 190px); height: clamp(34px, 6vh, 70px); image-rendering: pixelated; }
+dialog .howto canvas, dialog .howto .pic { flex: none; width: clamp(90px, 11vw, 190px); height: clamp(34px, 6dvh, 70px); image-rendering: pixelated; }
+dialog .howto .pic { object-fit: contain; padding: 6px 0; box-sizing: border-box; }   /* 아이콘 그림 (svg) */
 dialog .howto p { margin: 0; font-size: clamp(12px, 1.5vh, 17px); line-height: 1.5; }
 dialog .howto p { margin: 0; font-size: clamp(12px, 1.5dvh, 17px); line-height: 1.5; }
 dialog .howto b { margin-right: 4px; color: #ffd34d; }
@@ -212,7 +214,7 @@ body[data-portrait] #rotateGuide { cursor: default; }
   dialog .howto { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
   dialog .howto li:nth-child(2) { border-top: 0; }
   dialog .howto li { gap: 10px; padding: 4px 0; }
-  dialog .howto canvas { width: 72px; height: 28px; }
+  dialog .howto canvas, dialog .howto .pic { width: 72px; height: 28px; }
   dialog .howto p { font-size: 12px; line-height: 1.4; }
   dialog .creditCols { display: grid; grid-template-columns: 1.3fr 1fr; grid-template-areas: 'cast staff' 'cast info'; column-gap: 24px; align-content: start; }
   dialog .creditCols .cast { grid-area: cast; } dialog .creditCols .staff { grid-area: staff; } dialog .creditCols .info { grid-area: info; }
