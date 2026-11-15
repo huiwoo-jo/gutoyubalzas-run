@@ -2,8 +2,10 @@
 import { state, reset, jump, hooks, startIntro, registerScore } from './game.js';
 import { loadName, saveName } from './storage.js';
 import { playBgm, fadeOutBgm, shownSongs, songUrl } from './bgm.js';
+import { playTitleBgm, stopTitleBgm, stopSfx, titleBgmPaused } from './sfx.js';
 import { songButtonPos } from './render.js';
 import { ticketConcert, resetAds } from './ads.js';
+import { showJoinCard, hideJoinCard } from './joincard.js';
 import { W, RANK_SHOW } from './config.js';
 
 const canvas = document.getElementById('game');
@@ -18,6 +20,7 @@ export const nameFormOpen = () => nameForm.style.display === 'flex';
 export function showTitle() {
   state.scene = 'title';
   hideNameForm();
+  playTitleBgm();   // 자동 재생 차단 시 무음
 }
 
 // 게임 오버 후 이름 입력칸 (마지막 이름 미리 채움)
@@ -34,7 +37,8 @@ function hideNameForm() {
   nameInput.blur();
 }
 
-hooks.onReset = () => { hideNameForm(); resetAds(); };
+hooks.onReset = () => { hideNameForm(); resetAds(); hideJoinCard(); stopSfx('gameover'); stopTitleBgm(); };
+hooks.onJoin = showJoinCard;
 hooks.onGameOver = result => {
   fadeOutBgm();   // 브금은 서서히 줄이고, 목록은 게임 오버 전까지 들은 곡만
   if (result.canRank) showNameForm();
@@ -86,7 +90,10 @@ export function syncTicketLink() {
 
 // Space, 탭: 장면에 따라 시작, 다시 하기, 점프
 function press() {
-  if (state.scene === 'title') { playBgm(); return startIntro(); }
+  if (state.scene === 'title') {
+    if (titleBgmPaused()) return playTitleBgm();   // 자동 재생 차단 시 첫 입력은 타이틀 브금
+    stopTitleBgm(); playBgm(); return startIntro();
+  }
   if (state.scene === 'gameover') { if (!nameFormOpen()) { playBgm(); reset(); } return; }
   jump();
 }
