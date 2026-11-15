@@ -360,10 +360,12 @@ addEventListener('keyup', e => { if (['ArrowDown', 'KeyS'].includes(e.code)) sta
 canvas.addEventListener('pointerdown', e => {
   const r = canvas.getBoundingClientRect();
   if (state.paused) resumeGame();
-  else if (state.scene === 'title' && onStart(e)) start();
+  else if (state.scene === 'title' && onStart(e)) return;   // START는 click에서
   else if (state.scene === 'play' && e.clientX - r.left < r.width / 2) state.slideHeld = true;
   else press();
 });
+// START: 손을 뗀 뒤 열기 (누르는 순간 열면 휴대폰에서 같은 터치가 모드 선택 창 버튼을 누름)
+canvas.addEventListener('click', e => { if (state.scene === 'title' && onStart(e)) start(); });
 canvas.addEventListener('pointermove', e => {
   canvas.style.cursor = state.scene === 'title' && onStart(e) ? 'pointer' : '';
 });
