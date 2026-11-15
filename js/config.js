@@ -24,7 +24,7 @@ export const LATE_ACCEL = 0.012;         // 그 뒤로 달린 거리 1px당 추�
 export const MAX_SPEED = 1400;
 export const GRAVITY = 2600, JUMP_V = -1000;
 
-// 하트(목숨)
+// 하트(우웩이, 목숨)
 export const MAX_HEARTS = 3;             // 시작 하트 = 최대 하트
 export const HEART_CHANCE = 0.15;        // 하트가 모자랄 때 장애물 하나당 회복 하트가 나올 확률
 export const HEART_Y = 160;              // 회복 하트 높이
@@ -67,6 +67,7 @@ export const MEMBERS = [
   { id: 'donghun',   name: '양동훈', panel: 9,  common: 'donghun_guitar', play: 'donghun_base' },
   { id: 'jangdan',   name: '리장단', panel: 12, common: 'jangdan_drum', play: 'jangdan_drum' },
 ].map(m => ({ ...m, joinDist: panelDist(m.panel) }));
+export const START_BTN = { x: 514, y: 300, w: 244, h: 68 };   // 시작 화면 START 버튼 영역 (common/button 그림 기준)
 export const HEART_IMG = 'uwek_default';  // 목숨으로 쓰는 우웩이
 
 // 브금: 유튜브 재생목록 ID (주소의 list= 뒤 값) 비워 두면 브금 없음
