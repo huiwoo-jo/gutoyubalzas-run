@@ -17,6 +17,7 @@ export const state = {
   errorMsg: '',
   auto: new URLSearchParams(location.search).has('auto'), // 테스트용 자동 플레이 (A 키 또는 ?auto)
   slideHeld: false,
+  paused: false,          // 창을 벗어나면 멈춤 (input.js)
   dist: 0,                // 총 달린 거리
   phase: 'gather',
   phaseStart: 0,          // 현재 구간이 시작된 dist
@@ -73,6 +74,7 @@ export function reset() {
     invincibleUntil: 0,
     flashAt: -1e9,
     popups: [],
+    paused: false,
     scene: 'play',
   });
   hooks.onReset();
@@ -202,7 +204,7 @@ function hit() {
   state.hearts--;
   if (state.hearts > 0) {
     state.invincibleUntil = performance.now() + INVINCIBLE_MS;
-    addPopup('아야! 하트 -1', '#f77');
+    addPopup('아야! 우웩이 -1', '#f77');
     return true;
   }
   state.scene = 'fall';
@@ -236,6 +238,7 @@ function touches(box, item, pad = 20) {
 
 // ===== 매 프레임 =====
 export function update(dt) {
+  if (state.paused) return;
   const now = performance.now();
   if (state.scene === 'title' && state.auto) reset();
   if (state.scene === 'intro' && now - state.introStart > INTRO_MS) { reset(); state.flashAt = now; }
@@ -325,7 +328,7 @@ export function update(dt) {
   for (const h of state.heartItems) {
     if (!h.taken && touches(box, h, 28)) {
       h.taken = true;
-      if (state.hearts < MAX_HEARTS) { state.hearts++; addPopup('하트 +1', '#ff8fb1'); }
+      if (state.hearts < MAX_HEARTS) { state.hearts++; addPopup('우웩이 +1', '#ff8fb1'); }
     }
   }
   state.heartItems = state.heartItems.filter(h => h.x - state.dist > -100);

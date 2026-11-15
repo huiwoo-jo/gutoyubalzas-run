@@ -36,6 +36,15 @@ export function fadeOutBgm(ms = 2000) {
   }, 50);
 }
 
+// 일시정지, 다시 시작 (게임 중에만)
+export function pauseBgm() {
+  if (player && ready) player.pauseVideo();
+}
+
+export function resumeBgm() {
+  if (player && ready && recording) player.playVideo();
+}
+
 function pickRandom() {
   if (!ids.length) return '';
   if (ids.length === 1) return ids[0];
