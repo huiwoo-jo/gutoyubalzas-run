@@ -44,23 +44,41 @@ export function stopSfx(name) {
   src.stop();
 }
 
-// 타이틀 브금: 긴 반복 곡이라 오디오 태그
-const titleBgm = new Audio(url('title_bgm_icecream'));
-titleBgm.volume = TITLE_BGM_VOLUME;
-titleBgm.loop = true;
-titleBgm.preload = 'auto';
+// 타이틀 브금: Web Audio로 반복 (iOS는 오디오 태그 볼륨을 무시해 효과음보다 크게 들림)
+const titleOut = ctx.createGain();
+titleOut.gain.value = TITLE_BGM_VOLUME;
+titleOut.connect(ctx.destination);
+let titleBuf = null, titleSrc = null, titleAt = 0, titleOffset = 0, titleWanted = false;
+fetch(url('title_bgm_icecream'))
+  .then(r => r.arrayBuffer())
+  .then(b => ctx.decodeAudioData(b))
+  .then(buf => { titleBuf = buf; if (titleWanted) playTitleBgm(); })
+  .catch(err => console.warn('타이틀 브금을 불러오지 못했어요', err));
 
 export function playTitleBgm() {
-  if (titleBgm.paused) titleBgm.play().catch(() => {});   // 자동 재생 차단 시 무시
+  titleWanted = true;
+  if (titleSrc || !titleBuf) return;   // 재생 중, 아직 불러오는 중이면 끝나고 재생
+  unlock();
+  titleSrc = ctx.createBufferSource();
+  titleSrc.buffer = titleBuf;
+  titleSrc.loop = true;
+  titleSrc.connect(titleOut);
+  titleSrc.start(0, titleOffset % titleBuf.duration);
+  titleAt = ctx.currentTime;
 }
 
-export const titleBgmPaused = () => titleBgm.paused;
+// 자동 재생 차단(소리 꺼진 상태)도 멈춘 것으로 봄
+export const titleBgmPaused = () => !titleSrc || ctx.state !== 'running';
 
 export function pauseTitleBgm() {
-  titleBgm.pause();
+  titleWanted = false;
+  if (!titleSrc) return;
+  titleOffset += ctx.currentTime - titleAt;   // 이어서 재생할 위치
+  titleSrc.stop();
+  titleSrc = null;
 }
 
 export function stopTitleBgm() {
-  titleBgm.pause();
-  titleBgm.currentTime = 0;
+  pauseTitleBgm();
+  titleOffset = 0;
 }

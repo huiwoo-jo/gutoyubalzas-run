@@ -286,6 +286,13 @@ function drawHud() {
     drawText(p.text, p.y - k * 40, 30, p.color);
     ctx.globalAlpha = 1;
   }
+  // START 후 조작 안내: 진행 바 아래에 4초, 마지막 1초 동안 사라짐
+  const hint = (now - state.hintAt) / 1000;
+  if (state.scene === 'play' && hint < 4) {
+    ctx.globalAlpha = Math.min(1, 4 - hint);
+    drawText(IS_TOUCH ? 'JUMP 버튼으로 점프 · SLIDE 버튼을 누르고 있으면 슬라이딩' : 'Space, ↑ 점프 · ↓ 누르고 있으면 슬라이딩', 112, IS_TOUCH ? 30 : 26, '#fff');
+    ctx.globalAlpha = 1;
+  }
   // 구간이 바뀔 때 번쩍임 (0.4초)
   const flash = 1 - (now - state.flashAt) / 400;
   if (flash > 0) { ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fillRect(0, 0, W, H); }
@@ -297,16 +304,18 @@ function drawHud() {
 
 function drawRanking(x, y, count, highlight) {
   const list = loadRanking().slice(0, count);
-  ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(x - 170, y - 40, 340, 52 + Math.max(1, list.length) * 34);
-  ctx.textAlign = 'center'; ctx.font = 'bold 24px sans-serif'; ctx.fillStyle = '#ffd34d';
-  ctx.fillText('RANKING', x, y - 8);
-  ctx.font = 'bold 22px sans-serif';
-  if (!list.length) { ctx.fillStyle = '#aaa'; ctx.fillText('아직 기록이 없어요', x, y + 30); }
+  const m = IS_TOUCH ? 1.3 : 1;   // 휴대폰은 화면이 작아 크게 (브금 목록이 없어 자리 넉넉)
+  const half = 170 * m, row = 34 * m;
+  ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(x - half, y - 40 * m, half * 2, 52 * m + Math.max(1, list.length) * row);
+  ctx.textAlign = 'center'; ctx.font = `bold ${24 * m}px sans-serif`; ctx.fillStyle = '#ffd34d';
+  ctx.fillText('RANKING', x, y - 8 * m);
+  ctx.font = `bold ${22 * m}px sans-serif`;
+  if (!list.length) { ctx.fillStyle = '#aaa'; ctx.fillText('아직 기록이 없어요', x, y + 30 * m); }
   list.forEach((r, i) => {
-    const ry = y + 30 + i * 34;
+    const ry = y + 30 * m + i * row;
     ctx.fillStyle = i + 1 === highlight ? '#ffd34d' : '#fff';
-    ctx.textAlign = 'left'; ctx.fillText(`${i + 1}. ${r.name}`, x - 150, ry);
-    ctx.textAlign = 'right'; ctx.fillText(r.score.toLocaleString(), x + 150, ry);
+    ctx.textAlign = 'left'; ctx.fillText(`${i + 1}. ${r.name}`, x - half + 20 * m, ry);
+    ctx.textAlign = 'right'; ctx.fillText(r.score.toLocaleString(), x + half - 20 * m, ry);
   });
 }
 
@@ -382,7 +391,7 @@ function drawGameOver() {
   else if (r.rank) drawText(`${r.name} · ${r.rank}위 등록!`, 270, 26, '#7ef');
   else if (r.name && !r.saved) drawText('랭킹 서버에 저장하지 못했어요', 270, 26, '#f77');
   const songs = playedSongs().length > 0;
-  drawRanking(songs ? W / 2 - 190 : W / 2, 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
+  drawRanking(songs ? W / 2 - 190 : W / 2, IS_TOUCH ? 330 : 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
   if (songs) drawSongs(SONGS_X, SONGS_Y, RANK_SHOW);
   drawText(IS_TOUCH ? '화면을 눌러 다시 하기' : 'Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
 }
