@@ -2,7 +2,7 @@
 import {
   W, H, GROUND_Y, SPEED, PANEL_ORDER, BG_PARALLAX, GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT,
   MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, MEMBERS,
-  OBSTACLES, IS_TOUCH, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
+  IS_TOUCH, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers } from './game.js';
@@ -183,11 +183,10 @@ function drawFeverFloor() {
   ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 }
 
-// 장애물: assets/obstacles 이미지를 충돌 범위 크기로 (config.js OBSTACLES)
+// 장애물: assets/obstacles 이미지를 충돌 범위 크기로 (크기: config.js OBSTACLES)
 function drawObstacle(o, x) {
-  const { img } = OBSTACLES[o.type];
-  if (o.type === 'jump') ctx.drawImage(IMG[img], x, GROUND_Y - o.h, o.w, o.h);
-  else ctx.drawImage(IMG[img], x, o.top, o.w, o.bottom - o.top);
+  if (o.type === 'jump') ctx.drawImage(IMG[o.img], x, GROUND_Y - o.h, o.drawW, o.h);
+  else ctx.drawImage(IMG[o.img], x, o.top, o.drawW, o.bottom - o.top);
 }
 
 // 음표 (임시 도트, 4px 도트 9×11칸)

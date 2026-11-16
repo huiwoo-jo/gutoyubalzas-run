@@ -16,7 +16,7 @@ const assetList = [
   ...Array.from({ length: PANELS }, (_, i) => ['bg_far' + (i + 1), 'backgrounds']),
   ['bg_ground', 'backgrounds'],
   [HEART_IMG, 'uwek'],
-  ...Object.values(OBSTACLES).map(o => [o.img, 'obstacles']),
+  ...Object.values(OBSTACLES).flat().map(o => [o.img, 'obstacles']),
   ...['background', 'lamp', 'title', 'button'].map(n => [n, 'common']),
 ];
 

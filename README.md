@@ -37,7 +37,7 @@ python3 serve.py
 | `assets/backgrounds/` | 배경 패널(`bg_far1~11`) · 바닥(`bg_ground`) |
 | `assets/common/` | 시작 화면 (배경, 조명, 로고, START 버튼, 멤버 악기) · 피버 타임 무대 |
 | `assets/icons/` | 버튼 아이콘 (흰색 도트 svg: `rank`, `instagram`, `help`, `home`, `info`, `pause`, `slide`, `jump`, 누른 상태 `slide_on`, `jump_on`, `rotate_phone`), 파비콘(`favicon`, `apple-touch-icon`: 기본 우웩이), 파일만 바꾸면 교체 |
-| `assets/obstacles/` | 장애물 이미지 (`amp`: 바닥 앰프, `truss`: 천장 조명 트러스) |
+| `assets/obstacles/` | 장애물 이미지 (`rainbow_uwek`: 천장 무지개 우웩이, `burning_trash`: 바닥 타는 쓰레기, `mold_meat`: 바닥 곰팡이 고기) |
 | `assets/sounds/` | 타이틀 브금(`title_bgm`: '아이스크림' 8bit 편곡 버전), 플레이 브금(`game_bgm`: '이번 방학엔 공부 좀 해라' 8bit 편곡 버전) 효과음(`intro_crew`: 5인 달리기 등장, `gamestart`: 출발, `jump`, `slide`, `eat`, `eat_uwek`: 우웩이(하트) 먹기, `hit`, `join_멤버`, `gameover`) |
 | `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트) |
 
@@ -94,14 +94,6 @@ python3 serve.py
 - **로컬**: 프로젝트 폴더의 `.env.local`에 위 두 값을 적고 `python3 serve.py`로 실행하면, 서버가 `/js/env.js`를 그때그때 만들어 줍니다.
 - **배포**: 배포 서비스의 환경 변수에 위 두 값을 넣고, 빌드 명령을 `python3 serve.py build`로 지정합니다. 이 명령이 `js/env.js` 파일을 만들고, 그 뒤 프로젝트 폴더를 그대로 정적 사이트로 올리면 됩니다. 환경 변수가 `.env.local`보다 우선합니다.
 - **Vercel**: `vercel.json`에 빌드 명령과 출력 폴더가 들어 있어, 저장소를 가져온 뒤 Settings > Environment Variables에 `SUPABASE_URL`, `SUPABASE_KEY`만 넣으면 됩니다. `main`에 올라가면 자동으로 배포됩니다.
-
-## 임시 처리된 에셋
-
-아래는 전용 에셋이 없어 코드로 대신 그리고 있습니다. `assets/`에 추가되면 교체합니다.
-
-- 슬라이딩 / 넘어지기: `run1` 이미지를 찌그러뜨리거나 눕혀서 표현
-- 음표
-- 장애물(앰프, 조명 트러스)은 `assets/obstacles/amp.png`, `truss.png` 이미지 파일입니다. 그림만 바꾸려면 png만 교체하고, 크기와 충돌 범위는 `js/config.js`의 `OBSTACLES`에서 바꿉니다.
 
 ## 설정 값
 

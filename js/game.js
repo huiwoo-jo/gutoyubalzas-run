@@ -188,10 +188,13 @@ function endFever() {
 function spawnObstacle() {
   const low = Math.random() < 0.55;
   const x = state.dist + W + 40;
-  const o = low
-    ? { type: 'jump', x, w: OBSTACLES.jump.w, h: OBSTACLES.jump.h, minGap: Infinity }
-    : { type: 'slide', x, w: OBSTACLES.slide.w, top: 0, bottom: OBSTACLES.slide.h, minGap: Infinity };
+  const kinds = low ? OBSTACLES.jump : OBSTACLES.slide;
+  const { img, w, h, hitW = w } = kinds[Math.floor(Math.random() * kinds.length)];
+  const o = low   // w: 충돌 너비, drawW: 그림 너비
+    ? { type: 'jump', img, x, w: hitW, drawW: w, h, minGap: Infinity }
+    : { type: 'slide', img, x, w: hitW, drawW: w, top: 0, bottom: h, minGap: Infinity };
   state.obstacles.push(o);
+
   // 간격은 속도에 비례
   const gap = (speedNow() / SPEED) * (600 + Math.random() * 600);
   state.nextObstacleAt = state.dist + gap;
@@ -363,7 +366,7 @@ export function update(dt) {
       }
     }
   }
-  state.obstacles = state.obstacles.filter(o => o.x - state.dist > -200);
+  state.obstacles = state.obstacles.filter(o => o.x - state.dist + o.drawW > 0);   // 그림이 화면 왼쪽으로 다 나가면
 
   // 음표 먹기 (피버 중 배수)
   const noteMult = state.phase === 'fever' ? FEVER_NOTE_MULT : 1;
