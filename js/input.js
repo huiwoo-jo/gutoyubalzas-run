@@ -1,6 +1,6 @@
 // 입력: 키보드, 터치 조작과 랭킹 이름 입력
 import { state, reset, jump, hooks, startIntro, registerScore, runMode, bgmTempo } from './game.js';
-import { loadName, saveName, refreshRanking, fetchRanking, groupOf } from './storage.js';
+import { loadName, saveName, refreshRanking, fetchRanking, groupOf, kstYmd } from './storage.js';
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, setBgmRate, shownSongs, songUrl } from './bgm.js';
 import { playTitleBgm, stopTitleBgm, pauseTitleBgm, playGameBgm, stopGameBgm, pauseGameBgm, fadeOutGameBgm, setGameBgmRate, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
@@ -197,7 +197,7 @@ function openRanking() {
   showRanking('all');
 }
 
-const ymd = d => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+const ymd = kstYmd;   // 기록 날짜는 한국 시간
 const RANK_NOTE = {
   today: () => `${ymd(new Date())} 오늘 등록된 기록 중 상위 ${RANK_STORE}위`,
   all: () => `지금까지 등록된 전체 기록 중 상위 ${RANK_STORE}위`,

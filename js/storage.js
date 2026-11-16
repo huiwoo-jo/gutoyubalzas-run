@@ -43,9 +43,14 @@ export async function refreshRanking(group = 'crew') {
   }
 }
 
-// 랭킹 창용 상위 기록 (period: 'today' 오늘 0시 이후, 'all' 전체, 'mine' 이 브라우저 기록, group: 'crew', 'solo'), 실패하면 null
+// 한국 시간 (UTC+9, 서머타임 없음): 어느 나라에서 접속해도 같은 '오늘'
+const KST_MS = 9 * 3600 * 1000, DAY_MS = 24 * 3600 * 1000;
+export const kstYmd = d => new Date(d.getTime() + KST_MS).toISOString().slice(0, 10).replace(/-/g, '.');
+const kstMidnight = () => { const t = Date.now() + KST_MS; return new Date(t - (t % DAY_MS) - KST_MS); };
+
+// 랭킹 창용 상위 기록 (period: 'today' 한국 시간 오늘 0시 이후, 'all' 전체, 'mine' 이 브라우저 기록, group: 'crew', 'solo'), 실패하면 null
 export async function fetchRanking(period, group = 'crew') {
-  const d = new Date(); d.setHours(0, 0, 0, 0);
+  const d = kstMidnight();
   const id = playerId();
   if (period === 'mine' && !id) return [];
   const filter = period === 'today' ? `&created_at=gte.${encodeURIComponent(d.toISOString())}`
