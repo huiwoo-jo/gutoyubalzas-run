@@ -2,7 +2,7 @@
 import {
   W, H, GROUND_Y, SPEED, PANEL_ORDER, BG_PARALLAX, GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT,
   MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, MEMBERS,
-  IS_TOUCH, LEADER_X, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
+  IS_TOUCH, LEADER_X, SLIDE_FOOT, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers } from './game.js';
@@ -189,43 +189,25 @@ function drawObstacle(o, x) {
   else ctx.drawImage(IMG[o.img], x, o.top, o.drawW, o.bottom - o.top);
 }
 
-// 음표 (임시 도트, 4px 도트 9×11칸)
-const NOTE_PIXELS = [
-  '....##...',
-  '....###..',
-  '....#.##.',
-  '....#..##',
-  '....#...#',
-  '....#....',
-  '....#....',
-  '.####....',
-  '#####....',
-  '#####....',
-  '.###.....',
-];
+// 음표: assets/common/note.svg (40×48, (cx, cy) 기준)
 function drawNote(cx, cy) {
-  const s = 4, ox = cx - 18, oy = cy - 22;
-  const each = fn => NOTE_PIXELS.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') fn(ox + x * s, oy + y * s); }));
-  ctx.fillStyle = '#000'; each((x, y) => ctx.fillRect(x - 2, y - 2, s + 4, s + 4)); // 외곽선
-  ctx.fillStyle = '#ffd34d'; each((x, y) => ctx.fillRect(x, y, s, s));
+  ctx.drawImage(IMG.note, cx - 20, cy - 24);
 }
 
 // frame: 달리기 프레임 (0~RUN_FRAMES-1), fall: 쓰러진 정도 (0 서 있음, 1 다 쓰러짐)
-// 슬라이딩은 달리기 이미지를 납작하게
 function drawMember(id, x, footY, { air = false, sliding = false, fall = 0, frame = 0 } = {}) {
-  const img = IMG[id + (fall > 0 ? '_gameover' : air ? '_jump' : '_run' + (frame + 1))];
+  const pose = fall > 0 ? '_gameover' : air ? '_jump' : sliding ? '_slide' : '_run' + (frame + 1);
+  const img = IMG[id + pose];
   x = Math.round(x); footY = Math.round(footY);
   ctx.save();
   if (fall > 0) {       // 게임 오버: 멤버별 게임 오버 그림으로 뒤로 눕힘
     ctx.translate(x + 70 * fall, footY - 62 * fall);
     ctx.rotate(-Math.PI / 2 * fall);
-  } else if (sliding) { // 슬라이딩: 납작하게 (높이 약 75px)
-    ctx.translate(x, footY);
-    ctx.scale(1.15, 0.55);
   } else {
     ctx.translate(x, footY);
   }
-  ctx.drawImage(img, -Math.round(img.width / 2), -Math.round(CHAR_FOOT * CHAR_SCALE));
+  const foot = sliding && !fall && !air ? SLIDE_FOOT : CHAR_FOOT;   // 슬라이딩 그림은 발 위치가 다름
+  ctx.drawImage(img, -Math.round(img.width / 2), -Math.round(foot * CHAR_SCALE));
   ctx.restore();
 }
 
