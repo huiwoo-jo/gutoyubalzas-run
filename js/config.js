@@ -75,8 +75,8 @@ export const START_BTN = { x: 514, y: 300, w: 244, h: 68 };   // 시작 화면 S
 // 장애물: assets/obstacles/이름.png를 w×h(게임 화면 px)로 그림, 크기가 곧 충돌 범위 (hitW: 충돌 너비만 왼쪽부터 따로, 종류 중 무작위)
 export const OBSTACLES = {
   jump: [    // 바닥 (점프로 넘기)
-    { img: 'burning_trash', w: 76, h: 97 },               // 타는 쓰레기
-    { img: 'mold_meat', w: 124, h: 76 },                  // 곰팡이 고기
+    { img: 'burning_trash', w: 71, h: 90 },               // 타는 쓰레기
+    { img: 'mold_meat', w: 116, h: 71 },                  // 곰팡이 고기
   ],
   slide: [   // 천장 (슬라이딩으로 지나가기, 위에서 바닥 95px 위까지)
     { img: 'rainbow_uwek', w: 206, hitW: 108, h: GROUND_Y - 95 },   // 무지개 우웩이 (충돌은 무지개 줄기만, 머리 아래 투명 부분 제외)
