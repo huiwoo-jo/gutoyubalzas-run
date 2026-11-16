@@ -4,7 +4,7 @@ import { loadName, saveName, refreshRanking, fetchRanking, groupOf } from './sto
 import { playBgm, fadeOutBgm, pauseBgm, resumeBgm, setBgmRate, shownSongs, songUrl } from './bgm.js';
 import { playTitleBgm, stopTitleBgm, pauseTitleBgm, playGameBgm, stopGameBgm, pauseGameBgm, fadeOutGameBgm, setGameBgmRate, stopSfx } from './sfx.js';
 import { songButtonPos } from './render.js';
-import { ticketConcert, resetAds } from './ads.js';
+import { ticketConcerts, resetAds } from './ads.js';
 import { showJoinCard, hideJoinCard, drawFit } from './joincard.js';
 import { W, H, RANK_SHOW, RANK_STORE, START_BTN, IS_TOUCH, RESUME_COUNT_MS } from './config.js';
 
@@ -13,7 +13,7 @@ const nameForm = document.getElementById('nameForm');
 const nameInput = document.getElementById('nameInput');
 const nameCancel = document.getElementById('nameCancel');
 const songLinks = document.getElementById('songLinks');
-const ticketLink = document.getElementById('ticketLink');
+const ticketLinks = document.getElementById('ticketLinks');
 
 export const nameFormOpen = () => nameForm.style.display === 'flex';
 
@@ -91,15 +91,35 @@ export function syncSongLinks() {
   });
 }
 
-// 게임 오버 '예매하기' 버튼: 가장 가까운 공연 (매 프레임 호출)
+// 공연 이름이 길면 앞부분만 (예: '천진우와 구토유...')
+const TITLE_MAX = 8;
+const shortTitle = t => (t.length > TITLE_MAX ? `${t.slice(0, TITLE_MAX).trimEnd()}...` : t);
+
+// 게임 오버 공연 버튼: 앞으로 있을 공연마다 하나, 예매 가능하면 예매하기 (매 프레임 호출)
+// PC는 가로 한 줄, 휴대폰은 랭킹 오른쪽에 세로로
 export function syncTicketLink() {
-  const c = state.scene === 'gameover' && !nameFormOpen() ? ticketConcert() : null;
-  ticketLink.style.display = c ? 'block' : 'none';
-  if (!c) return;
-  if (ticketLink.href !== c.link) { ticketLink.href = c.link; ticketLink.textContent = `🎫 ${c.title} 예매하기`; }
+  const list = state.scene === 'gameover' && !nameFormOpen() ? ticketConcerts() : [];
+  while (ticketLinks.children.length < list.length) {
+    const a = document.createElement('a');
+    a.target = '_blank'; a.rel = 'noopener';
+    ticketLinks.append(a);
+  }
+  while (ticketLinks.children.length > list.length) ticketLinks.lastChild.remove();
+  ticketLinks.style.display = list.length ? 'flex' : 'none';
+  if (!list.length) return;
   const r = canvas.getBoundingClientRect(), k = r.width / W;
+  list.forEach((c, n) => {
+    const a = ticketLinks.children[n], url = c.link || c.page;   // 예매 링크가 없거나 매진이면 Mortals Log 공연 정보
+    if (a.href !== url) {
+      a.href = url; a.title = c.title;
+      a.textContent = `🎫 ${shortTitle(c.title)} ${c.link ? '예매하기' : c.soldOut ? '매진 · 공연 정보' : '공연 정보'}`;
+    }
+  });
   const x = IS_TOUCH ? W / 2 + 250 : W / 2, y = IS_TOUCH ? 420 : 600;   // 휴대폰은 랭킹 오른쪽 (render.js drawGameOver)
-  Object.assign(ticketLink.style, { left: `${r.left + x * k}px`, top: `${r.top + y * k}px`, fontSize: `${Math.max(14, 20 * k)}px`, maxWidth: `${520 * k}px` });   // 휴대폰에서도 읽히게
+  Object.assign(ticketLinks.style, {
+    left: `${r.left + x * k}px`, top: `${r.top + y * k}px`, fontSize: `${Math.max(14, 20 * k)}px`,   // 휴대폰에서도 읽히게
+    flexDirection: IS_TOUCH ? 'column' : 'row', gap: `${12 * k}px`,
+  });
 }
 
 // 플레이 방법(?), 만든 사람들(!) 창
