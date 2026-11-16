@@ -22,8 +22,8 @@ export const FEVER_NOTE_GAP = 110;       // 피버 중 음표 간격
 
 // 속도 및 물리
 export const SPEED = 420;                // 시작 속도 px/s
-export const SPEED_UP = 0.6;             // 첫 모으기 끝 속도 = SPEED × (1 + SPEED_UP)
-export const LATE_ACCEL = 0.008;         // 그 뒤로 달린 거리 1px당 추가 속도
+export const SPEED_UP = 0.75;            // 첫 모으기 끝 속도 = SPEED × (1 + SPEED_UP)
+export const LATE_ACCEL = 0.01;          // 그 뒤로 달린 거리 1px당 추가 속도
 export const MAX_SPEED = 1400;
 export const GRAVITY = 2600, JUMP_V = -1000;
 
