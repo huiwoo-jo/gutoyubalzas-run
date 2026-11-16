@@ -35,9 +35,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }   /* 가로로 
   border: 2px solid #f9c; background: #111; color: #f9c;
 }
 
-/* 게임 오버 '예매하기' 버튼 (위치: input.js syncTicketLink) */
-#ticketLink {
-  position: absolute; transform: translate(-50%, -50%); display: none; padding: .4em 1em; white-space: nowrap;
+/* 게임 오버 '예매하기' 버튼들 (위치, 방향: input.js syncTicketLink) */
+#ticketLinks { position: absolute; transform: translate(-50%, -50%); display: none; align-items: center; }
+#ticketLinks a {
+  padding: .4em 1em; white-space: nowrap;
   font-weight: bold; font-family: sans-serif; text-decoration: none;
   border: 3px solid #111; background: #f9c; color: #111; box-shadow: 4px 4px 0 #000;
   overflow: hidden; text-overflow: ellipsis;   /* 공연 이름이 길면 말줄임 */
