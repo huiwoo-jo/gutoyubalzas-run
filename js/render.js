@@ -210,13 +210,13 @@ function drawNote(cx, cy) {
   ctx.fillStyle = '#ffd34d'; each((x, y) => ctx.fillRect(x, y, s, s));
 }
 
-// frame: 달리기 프레임 (0~RUN_FRAMES-1), fall: 쓰러진 정도 (0 서 있음, 1 누움)
-// 슬라이딩, 넘어지기는 달리기 이미지 변형 (임시)
+// frame: 달리기 프레임 (0~RUN_FRAMES-1), fall: 쓰러진 정도 (0 서 있음, 1 다 쓰러짐)
+// 슬라이딩은 달리기 이미지를 납작하게
 function drawMember(id, x, footY, { air = false, sliding = false, fall = 0, frame = 0 } = {}) {
-  const img = IMG[id + (air ? '_jump' : '_run' + (frame + 1))];
+  const img = IMG[id + (fall > 0 ? '_gameover' : air ? '_jump' : '_run' + (frame + 1))];
   x = Math.round(x); footY = Math.round(footY);
   ctx.save();
-  if (fall > 0) {       // 넘어지기: 뒤로 눕힘 (임시)
+  if (fall > 0) {       // 게임 오버: 멤버별 게임 오버 그림으로 뒤로 눕힘
     ctx.translate(x + 70 * fall, footY - 62 * fall);
     ctx.rotate(-Math.PI / 2 * fall);
   } else if (sliding) { // 슬라이딩: 납작하게 (높이 약 75px)
