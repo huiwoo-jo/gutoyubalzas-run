@@ -142,7 +142,7 @@ function showPage(d, n) {
 }
 document.getElementById('helpBtn').addEventListener('click', () => { showDialog('helpDialog'); drawHowto(); });   // 열린 뒤 크기 재서 그림
 
-// 창 안 그림: 칸마다 캐릭터 이미지 (data-squash: 슬라이딩처럼 납작하게)
+// 창 안 그림: 칸마다 캐릭터 이미지 (data-scale: 칸 높이 대비 크기)
 function drawHowto() {
   for (const c of document.querySelectorAll('dialog[open] canvas[data-pics]')) {
     const names = c.dataset.pics.split(','), S = 2;   // 2배로 그려 선명하게
@@ -150,8 +150,7 @@ function drawHowto() {
     const g = c.getContext('2d'), cell = Math.min(c.width / names.length, c.height * 1.2);
     const x0 = (c.width - cell * names.length) / 2;
     g.imageSmoothingEnabled = false;
-    if ('squash' in c.dataset) { g.translate(0, c.height); g.scale(1.25, 0.6); g.translate(-c.width * 0.1, -c.height); }
-    const scale = names.length > 1 ? 0.7 : 1;
+    const scale = +c.dataset.scale || (names.length > 1 ? 0.7 : 1);
     names.forEach((n, i) => drawFit(g, n, x0 + cell * i, 0, cell, c.height, scale));
   }
 }
