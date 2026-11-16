@@ -22,6 +22,17 @@ export function showTitle() {
   state.scene = 'title';
   hideNameForm();
   playTitleBgm();   // 자동 재생 차단 시 무음
+  if (!document.body.hasAttribute('data-guide')) showEvents();   // 터치 기기는 회전 안내를 닫은 뒤 (안내 누름 쪽에서)
+}
+
+// 첫 화면 이벤트 알림: 접속할 때 한 번, 기간 지난 이벤트는 뺌 (남은 게 없으면 안 띄움)
+let eventsShown = false;
+function showEvents() {
+  if (eventsShown) return;
+  eventsShown = true;
+  const d = document.getElementById('eventDialog');
+  d.querySelectorAll('.event[data-until]').forEach(e => { if (Date.now() > Date.parse(e.dataset.until)) e.remove(); });
+  if (d.querySelector('.event')) showDialog('eventDialog');
 }
 
 // 게임 오버 후 이름 입력칸 (마지막 이름 미리 채움)
@@ -359,6 +370,7 @@ guide.addEventListener('click', async () => {
   if (document.body.hasAttribute('data-portrait')) return;   // 세로면 진행 안 함
   document.body.removeAttribute('data-guide');
   playTitleBgm();   // 첫 터치에 타이틀 브금
+  if (state.scene === 'title') showEvents();
   try {
     await document.documentElement.requestFullscreen?.();
     await screen.orientation?.lock?.('landscape');
