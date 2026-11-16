@@ -9,6 +9,7 @@ const assetList = [
   ...MEMBERS.flatMap(m => [
     ...Array.from({ length: RUN_FRAMES }, (_, i) => [`${m.id}_run${i + 1}`, `characters/${m.id}`]),
     [m.id + '_jump', `characters/${m.id}`],
+    [m.id + '_gameover', `characters/${m.id}`],
     [m.play, `characters/${m.id}`, 'play_' + m.id],   // 시작 화면 악기와 이름이 같아 키 분리
     [m.common, 'common'],
     ['uwek_' + m.id, 'uwek'],
