@@ -9,6 +9,8 @@ const assetList = [
   ...MEMBERS.flatMap(m => [
     ...Array.from({ length: RUN_FRAMES }, (_, i) => [`${m.id}_run${i + 1}`, `characters/${m.id}`]),
     [m.id + '_jump', `characters/${m.id}`],
+    [m.id + '_gameover', `characters/${m.id}`],
+    [m.id + '_slide', `characters/${m.id}`],
     [m.play, `characters/${m.id}`, 'play_' + m.id],   // 시작 화면 악기와 이름이 같아 키 분리
     [m.common, 'common'],
     ['uwek_' + m.id, 'uwek'],
@@ -16,8 +18,9 @@ const assetList = [
   ...Array.from({ length: PANELS }, (_, i) => ['bg_far' + (i + 1), 'backgrounds']),
   ['bg_ground', 'backgrounds'],
   [HEART_IMG, 'uwek'],
-  ...Object.values(OBSTACLES).map(o => [o.img, 'obstacles']),
+  ...Object.values(OBSTACLES).flat().map(o => [o.img, 'obstacles']),
   ...['background', 'lamp', 'title', 'button'].map(n => [n, 'common']),
+  ['note', 'common', 'note', 'svg'],   // 음표 (원래 크기 그대로)
 ];
 
 function shrink(img, w, h) {
@@ -30,12 +33,14 @@ function shrink(img, w, h) {
 }
 
 export function loadAssets() {
-  return Promise.all(assetList.map(([n, dir, key = n]) => new Promise((ok, fail) => {
-    const src = `assets/${dir}/${n}.png`;
+  return Promise.all(assetList.map(([n, dir, key = n, ext = 'png']) => new Promise((ok, fail) => {
+    const src = `assets/${dir}/${n}.${ext}`;
     const img = new Image();
     let tries = 0;
     img.onload = () => {
-      if (dir.startsWith('characters/')) {
+      if (ext === 'svg') {
+        IMG[key] = img;
+      } else if (dir.startsWith('characters/')) {
         IMG[key] = shrink(img, Math.round(img.width * CHAR_SCALE), Math.round(img.height * CHAR_SCALE));
       } else if (dir === 'obstacles') {
         IMG[key] = img;   // 원본 그대로 (그릴 때 OBSTACLES 크기로)
