@@ -9,7 +9,7 @@ import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers } from
 import { loadRanking, loadMyBest } from './storage.js';
 import { nameFormOpen } from './input.js';
 import { playedSongs, shownSongs } from './bgm.js';
-import { adFor, ticketConcert } from './ads.js';
+import { adFor, ticketConcerts } from './ads.js';
 
 const ctx = document.getElementById('game').getContext('2d');
 
@@ -378,7 +378,7 @@ function drawGameOver() {
   else if (r.name && !r.saved) drawText('랭킹 서버에 저장하지 못했어요', 270, 26, '#f77');
   const songs = playedSongs().length > 0;
   // 휴대폰은 예매하기 버튼을 랭킹 오른쪽에 (아래에 두면 글자를 가림, input.js syncTicketLink)
-  const rankX = songs ? W / 2 - 190 : IS_TOUCH && ticketConcert() ? W / 2 - 220 : W / 2;
+  const rankX = songs ? W / 2 - 190 : IS_TOUCH && ticketConcerts().length ? W / 2 - 220 : W / 2;
   drawRanking(rankX, IS_TOUCH ? 330 : 340, RANK_SHOW, r.rank);   // 브금이 있으면 랭킹 옆에 브금 목록
   if (songs) drawSongs(SONGS_X, SONGS_Y, RANK_SHOW);
   drawText(IS_TOUCH ? '화면을 눌러 다시 하기' : 'Space / 탭 다시 하기', H - 50, 24);   // 맨 아래는 팬메이드 안내
