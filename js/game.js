@@ -43,6 +43,8 @@ export const state = {
   invincibleUntil: 0,
   flashAt: -1e9,          // 구간이 바뀔 때 화면 번쩍임
   hintAt: -1e9,           // START 후 조작 안내 시작 시각 (render.js)
+  bulletHintText: '',
+  bulletHintUntil: 0,
   popups: [],
   introStart: 0,
   fallTime: 0,
@@ -89,6 +91,8 @@ export function reset() {
     score: 0,
     autoUsed: state.auto,
     invincibleUntil: 0,
+    bulletHintText: '',
+    bulletHintUntil: 0,
     flashAt: -1e9,
     popups: [],
     paused: false,
@@ -215,6 +219,10 @@ function spawnObstacle() {
     : { ...base, h, bottom, low: bottom < 70 };   // bullet: 낮으면 점프, 높으면 슬라이딩
   state.obstacles.push(o);
   if (type === 'bullet') {
+    state.bulletHintText = o.low
+      ? '⚠️ 빵야빵야 [ 점프 ]로 피하세요'
+      : '⚠️ 빵야빵야 [ 슬라이드 ]로 피하세요';
+    state.bulletHintUntil = performance.now() + 2000;
     playSfx('bullet_warn') 
     playSfx('bullet_fire')
   } ;

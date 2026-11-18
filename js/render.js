@@ -281,9 +281,11 @@ function drawHud() {
     drawText(p.text, p.y - k * 40, 30, p.color);
     ctx.globalAlpha = 1;
   }
-  // START 후 조작 안내: 진행 바 아래에 4초, 마지막 1초 동안 사라짐
+  // 시작 조작 안내 또는 총알 회피 안내: 진행 바 아래
   const hint = (now - state.hintAt) / 1000;
-  if (state.scene === 'play' && hint < 4) {
+  if (state.scene === 'play' && state.bulletHintUntil > now) {
+    drawText(state.bulletHintText, 112, IS_TOUCH ? 30 : 26, '#fff');
+  } else if (state.scene === 'play' && hint < 4) {
     ctx.globalAlpha = Math.min(1, 4 - hint);
     drawText(IS_TOUCH ? 'JUMP 버튼으로 점프 · SLIDE 버튼을 누르고 있으면 슬라이딩' : 'Space, ↑ 점프 · ↓ 누르고 있으면 슬라이딩', 112, IS_TOUCH ? 30 : 26, '#fff');
     ctx.globalAlpha = 1;
