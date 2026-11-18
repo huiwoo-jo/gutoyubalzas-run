@@ -140,7 +140,7 @@ dialog .members { list-style: none; padding: 0; }
 dialog .members li { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
 dialog .members canvas { width: 28px; height: 28px; }
 
-/* 이벤트 알림: 카드 둘, 화면이 낮으면 쪽 나눔(paginate). 큰 화면은 나란히 */
+/* 공지 알림: 카드 둘, 화면이 낮으면 쪽 나눔(paginate). 큰 화면은 나란히 */
 dialog .event { margin: 0 0 10px; padding: 10px 12px; border: 2px dashed #ffd34d; background: #1a1a1a; }
 dialog .event h3 { margin: 0 0 4px; font-size: 1.15em; color: #ffd34d; }
 dialog .event .lead { margin: 0 0 6px; font-weight: bold; }
