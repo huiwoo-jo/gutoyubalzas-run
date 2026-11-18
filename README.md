@@ -4,14 +4,15 @@
 
 ## 실행
 
-이미지를 불러오기 때문에 파일을 바로 열지 말고 정적 서버로 실행합니다.
-`serve.py`는 브라우저 캐시를 끈 서버라, 코드를 고친 뒤 새로고침만 해도 바로 반영됩니다.
+천진우와 구토유발자들 RUN을 실행할 수 있는 사이트입니다.
 
-```bash
-python3 serve.py
-```
+https://gutoyubalzas-run.vercel.app
 
-브라우저에서 http://localhost:8765 접속
+## 설명서
+
+천진우와 구토유발자들 RUN을 더 재미있게 즐길 수 있는 설정집입니다.
+
+https://app.notion.com/p/RUN-41a3a2d82524803fa2f6f597ce87f2b2?source=copy_link
 
 ## 파일 구조
 
