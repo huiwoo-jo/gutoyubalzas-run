@@ -120,7 +120,7 @@ function targetSpeed() {
 }
 
 // 현재 속도: 목표 속도를 따라 서서히 바뀜 (피버 시작, 끝에 급가속, 급감속 없이)
-const SPEED_EASE_S = 1;
+const SPEED_EASE_S = 1.4;
 export const speedNow = () => state.speed;
 
 export const multiplier = () => state.crew.length;
