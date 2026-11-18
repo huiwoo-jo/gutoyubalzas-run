@@ -147,6 +147,13 @@ export function obstacleRect(o) {
   const x = screenX(o);
   if (o.type === 'jump') return { x, y: GROUND_Y - o.h, w: o.w, h: o.h };
   if (o.type === 'slide') return { x, y: o.top, w: o.w, h: o.bottom - o.top };
+  if (o.type === 'bullet' && !o.low) {
+    // 높은 총알은 서 있거나 점프하면 맞고, 슬라이딩으로만 피할 수 있게 충돌 높이를 확장
+    const bottom = GROUND_Y - o.bottom;
+    const jumpApex = GROUND_Y - JUMP_V ** 2 / (2 * GRAVITY);
+    const y = Math.min(bottom - o.h, jumpApex - 32);
+    return { x, y, w: o.w, h: bottom - y };
+  }
   return { x, y: GROUND_Y - o.bottom - o.h, w: o.w, h: o.h };   // bullet
 }
 
