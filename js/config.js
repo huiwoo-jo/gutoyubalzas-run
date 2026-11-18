@@ -87,6 +87,7 @@ export const OBSTACLES = {
   ],
 };
 export const OBSTACLE_MIX = { jump: 0.45, slide: 0.35, bullet: 0.2 };   // 장애물 종류별 확률
+export const BULLET_WARNING = 'bullet_warning';    // 총알 나오기 전 경고 
 export const BULLET_SPEED = 0.8;   // 총알이 땅보다 더 빨리 다가오는 정도 (0.8: 1.8배 빠르게)
 export const BULLET_WARN_S = 1.2;    // 예고음(bullet_warn, 약 1초)이 울린 뒤 총알이 화면에 들어오기까지 시간 (속도와 무관하게 일정)
 export const HEART_IMG = 'uwek_default';  // 5인 달리기에서 목숨으로 쓰는 우웩이 (캐릭터 달리기는 그 멤버 우웩이)

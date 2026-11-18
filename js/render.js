@@ -2,7 +2,7 @@
 import {
   W, H, GROUND_Y, SPEED, PANEL_ORDER, BG_PARALLAX, GATHER_LENGTH, FEVER_LENGTH, FEVER_NOTE_MULT,
   MAX_HEARTS, HEART_IMG, CHAR_SCALE, CHAR_FOOT, RUN_FRAMES, RUN_FPS, PX_PER_M, RANK_SHOW, MEMBERS,
-  IS_TOUCH, LEADER_X, SLIDE_FOOT, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
+  IS_TOUCH, LEADER_X, SLIDE_FOOT, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR, BULLET_WARNING,
 } from './config.js';
 import { IMG } from './assets.js';
 import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers, obstacleRect } from './game.js';
@@ -191,13 +191,10 @@ function drawObstacle(o, x) {
     ctx.drawImage(IMG[o.img], x, o.top, o.drawW, o.bottom - o.top);
   } else if (x < W) {   // 총알
     ctx.drawImage(IMG[o.img], x, GROUND_Y - o.bottom - o.h, o.drawW, o.h);
-  } else if (Math.floor(performance.now() / 150) % 2) {   // 화면 밖 총알: 오른쪽 끝, 날아올 높이에 깜빡이는 ! 예고
+  } else if (Math.floor(performance.now() / 150) % 2) {   // 화면 밖 총알: 오른쪽 끝, 날아올 높이에 경고 이미지
     const cy = GROUND_Y - o.bottom - o.h / 2;
-    ctx.fillStyle = '#e33'; ctx.beginPath(); ctx.arc(W - 40, cy, 20, 0, Math.PI * 2); ctx.fill();
-    ctx.lineWidth = 3; ctx.strokeStyle = '#111'; ctx.stroke();
-    ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
-    ctx.fillText('!', W - 40, cy + 1);
-    ctx.textBaseline = 'alphabetic';
+    const size = 64;
+    ctx.drawImage(IMG[BULLET_WARNING], W - 40 - size / 2, cy - size / 2, size, size);
   }
 }
 
