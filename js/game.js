@@ -422,9 +422,6 @@ export function update(dt) {
       }
     }
   }
-  // for (const o of state.obstacles) {   // 총알이 화면에 들어오면 발사음
-  //   if (o.type === 'bullet' && !o.fired && screenX(o) < W) { o.fired = true; playSfx('bullet_fire'); }
-  // }
   state.obstacles = state.obstacles.filter(o => screenX(o) + o.drawW > 0);   // 그림이 화면 왼쪽으로 다 나가면
 
   // 음표 먹기 (피버 중 배수)
