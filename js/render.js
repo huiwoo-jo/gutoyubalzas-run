@@ -5,7 +5,7 @@ import {
   IS_TOUCH, LEADER_X, SLIDE_FOOT, FALL_STAGGER_MS, FALL_MS, INTRO_FADE_MS, INTRO_WALK_MS, STAGE_FLOOR,
 } from './config.js';
 import { IMG } from './assets.js';
-import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers } from './game.js';
+import { state, speedNow, multiplier, pose, phaseDist, mapDist, midFevers, obstacleRect } from './game.js';
 import { loadRanking, loadMyBest } from './storage.js';
 import { nameFormOpen } from './input.js';
 import { playedSongs, shownSongs } from './bgm.js';
@@ -151,7 +151,7 @@ function drawWorld() {
     }
   }
 
-  for (const o of state.obstacles) drawObstacle(o, Math.round(o.x - dist));
+  for (const o of state.obstacles) drawObstacle(o, Math.round(obstacleRect(o).x));
   for (const n of state.notes) {
     if (!n.taken) drawNote(Math.round(n.x - dist), Math.round(n.y + Math.sin(t / 200 + n.x) * 4));
   }
@@ -185,8 +185,20 @@ function drawFeverFloor() {
 
 // 장애물: assets/obstacles 이미지를 충돌 범위 크기로 (크기: config.js OBSTACLES)
 function drawObstacle(o, x) {
-  if (o.type === 'jump') ctx.drawImage(IMG[o.img], x, GROUND_Y - o.h, o.drawW, o.h);
-  else ctx.drawImage(IMG[o.img], x, o.top, o.drawW, o.bottom - o.top);
+  if (o.type === 'jump') {
+    ctx.drawImage(IMG[o.img], x, GROUND_Y - o.h, o.drawW, o.h);
+  } else if (o.type === 'slide') {
+    ctx.drawImage(IMG[o.img], x, o.top, o.drawW, o.bottom - o.top);
+  } else if (x < W) {   // 총알
+    ctx.drawImage(IMG[o.img], x, GROUND_Y - o.bottom - o.h, o.drawW, o.h);
+  } else if (Math.floor(performance.now() / 150) % 2) {   // 화면 밖 총알: 오른쪽 끝, 날아올 높이에 깜빡이는 ! 예고
+    const cy = GROUND_Y - o.bottom - o.h / 2;
+    ctx.fillStyle = '#e33'; ctx.beginPath(); ctx.arc(W - 40, cy, 20, 0, Math.PI * 2); ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#111'; ctx.stroke();
+    ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
+    ctx.fillText('!', W - 40, cy + 1);
+    ctx.textBaseline = 'alphabetic';
+  }
 }
 
 // 음표: assets/common/note.svg (40×48, (cx, cy) 기준)
