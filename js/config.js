@@ -22,8 +22,8 @@ export const FEVER_NOTE_GAP = 110;       // 피버 중 음표 간격
 
 // 속도 및 물리
 export const SPEED = 420;                // 시작 속도 px/s
-export const SPEED_UP = 0.75;            // 첫 모으기 끝 속도 = SPEED × (1 + SPEED_UP)
-export const LATE_ACCEL = 0.01;          // 그 뒤로 달린 거리 1px당 추가 속도
+export const SPEED_UP = 0.6;            // 첫 모으기 끝 속도 = SPEED × (1 + SPEED_UP)
+export const LATE_ACCEL = 0.008;          // 그 뒤로 달린 거리 1px당 추가 속도
 export const MAX_SPEED = 1400;
 export const GRAVITY = 2600, JUMP_V = -1000;
 
@@ -81,7 +81,14 @@ export const OBSTACLES = {
   slide: [   // 천장 (슬라이딩으로 지나가기, 위에서 바닥 95px 위까지)
     { img: 'rainbow_uwek', w: 206, hitW: 108, h: GROUND_Y - 95 },   // 무지개 우웩이 (충돌은 무지개 줄기만, 머리 아래 투명 부분 제외)
   ],
+  bullet: [   // 날아오는 총알 (오른쪽에서 빠르게, 예고음 뒤 발사음)
+    { img: 'bullet', w: 81, h: 30, bottom: 25 },   // 낮은 총알: 점프로 피하기 (바닥 25px 위)
+    { img: 'bullet', w: 81, h: 30, bottom: 100 },   // 높은 총알: 슬라이딩으로 피하기 (서 있으면 머리에 맞음)
+  ],
 };
+export const OBSTACLE_MIX = { jump: 0.45, slide: 0.35, bullet: 0.2 };   // 장애물 종류별 확률
+export const BULLET_SPEED = 0.8;   // 총알이 땅보다 더 빨리 다가오는 정도 (0.8: 1.8배 빠르게)
+export const BULLET_WARN_S = 1.2;    // 예고음(bullet_warn, 약 1초)이 울린 뒤 총알이 화면에 들어오기까지 시간 (속도와 무관하게 일정)
 export const HEART_IMG = 'uwek_default';  // 5인 달리기에서 목숨으로 쓰는 우웩이 (캐릭터 달리기는 그 멤버 우웩이)
 
 // 터치 기기 (휴대폰, 태블릿): 플레이 버튼, 가로 회전 안내, 유튜브 대신 타이틀 브금

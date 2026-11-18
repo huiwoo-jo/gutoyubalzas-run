@@ -25,7 +25,7 @@ export function showTitle() {
   if (!document.body.hasAttribute('data-guide')) showEvents();   // 터치 기기는 회전 안내를 닫은 뒤 (안내 누름 쪽에서)
 }
 
-// 첫 화면 이벤트 알림: 접속할 때 한 번, 기간 지난 이벤트는 뺌 (남은 게 없으면 안 띄움)
+// 첫 화면 공지 알림: 접속할 때 한 번, 기간 지난 공지는 뺌 (남은 게 없으면 안 띄움)
 let eventsShown = false;
 function showEvents() {
   if (eventsShown) return;
