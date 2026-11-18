@@ -4,14 +4,15 @@
 
 ## 실행
 
-이미지를 불러오기 때문에 파일을 바로 열지 말고 정적 서버로 실행합니다.
-`serve.py`는 브라우저 캐시를 끈 서버라, 코드를 고친 뒤 새로고침만 해도 바로 반영됩니다.
+천진우와 구토유발자들 RUN을 실행할 수 있는 사이트입니다.
 
-```bash
-python3 serve.py
-```
+https://gutoyubalzas-run.vercel.app
 
-브라우저에서 http://localhost:8765 접속
+## 설명서
+
+천진우와 구토유발자들 RUN을 더 재미있게 즐길 수 있는 설정집입니다.
+
+https://app.notion.com/p/RUN-41a3a2d82524803fa2f6f597ce87f2b2?source=copy_link
 
 ## 파일 구조
 
@@ -37,8 +38,8 @@ python3 serve.py
 | `assets/backgrounds/` | 배경 패널(`bg_far1~11`) · 바닥(`bg_ground`) |
 | `assets/common/` | 시작 화면 (배경, 조명, 로고, START 버튼, 멤버 악기) · 피버 타임 무대 · 음표(`note.svg`) |
 | `assets/icons/` | 버튼 아이콘 (흰색 도트 svg: `rank`, `instagram`, `help`, `home`, `info`, `pause`, `slide`, `jump`, 누른 상태 `slide_on`, `jump_on`, `rotate_phone`), 파비콘(`favicon`, `apple-touch-icon`: 기본 우웩이), 파일만 바꾸면 교체 |
-| `assets/obstacles/` | 장애물 이미지 (`rainbow_uwek`: 천장 무지개 우웩이, `burning_trash`: 바닥 타는 쓰레기, `mold_meat`: 바닥 곰팡이 고기) |
-| `assets/sounds/` | 타이틀 브금(`title_bgm`: '아이스크림' 8bit 편곡 버전), 플레이 브금(`game_bgm`: '이번 방학엔 공부 좀 해라' 8bit 편곡 버전) 효과음(`intro_crew`: 5인 달리기 등장, `gamestart`: 출발, `jump`, `slide`, `eat`, `eat_uwek`: 우웩이(하트) 먹기, `hit`, `join_멤버`, `gameover`) |
+| `assets/obstacles/` | 장애물 이미지 (`rainbow_uwek`: 천장 무지개 우웩이, `burning_trash`: 바닥 타는 쓰레기, `mold_meat`: 바닥 곰팡이 고기, `bullet`: 날아오는 총알) |
+| `assets/sounds/` | 타이틀 브금(`title_bgm`: '아이스크림' 8bit 편곡 버전), 플레이 브금(`game_bgm`: '이번 방학엔 공부 좀 해라' 8bit 편곡 버전) 효과음(`intro_crew`: 5인 달리기 등장, `gamestart`: 출발, `jump`, `slide`, `eat`, `eat_uwek`: 우웩이(하트) 먹기, `hit`, `bullet_warn`: 총알 발사 예고, `bullet_fire`: 총알 발사, `join_멤버`, `gameover`) |
 | `assets/uwek/` | 우웩이 (`uwek_멤버`: 진행 바 아이콘, `uwek_jinwoo`: 하트) |
 
 ## 조작

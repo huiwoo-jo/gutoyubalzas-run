@@ -5,7 +5,7 @@ import {
   W, GROUND_Y, SPEED, SPEED_UP, LATE_ACCEL, MAX_SPEED, GRAVITY, JUMP_V,
   GATHER_LENGTH, FEVER_LENGTH, LAP_FEVER_DELAY_S, SOLO_FEVERS, PANEL_ORDER, BG_PARALLAX, FEVER_NOTE_MULT, FEVER_NOTE_GAP,
   MAX_HEARTS, HEART_CHANCE, HEART_Y, INTRO_MS,
-  OBSTACLES, PX_PER_M, TEMPO, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
+  OBSTACLES, OBSTACLE_MIX, BULLET_SPEED, BULLET_WARN_S, PX_PER_M, TEMPO, LEADER_X, GAP, INVINCIBLE_MS, SCORE_PER_PX, DODGE_SCORE, NOTE_SCORE, NEAR_MISS_PX, NEAR_MISS_SCORE, MEMBERS,
 } from './config.js';
 import { addRanking } from './storage.js';
 import { playSfx, stopSfx } from './sfx.js';
@@ -120,7 +120,7 @@ function targetSpeed() {
 }
 
 // 현재 속도: 목표 속도를 따라 서서히 바뀜 (피버 시작, 끝에 급가속, 급감속 없이)
-const SPEED_EASE_S = 0.8;
+const SPEED_EASE_S = 1;
 export const speedNow = () => state.speed;
 
 export const multiplier = () => state.crew.length;
@@ -135,11 +135,19 @@ export function leaderBox() {
   return { x: LEADER_X - 40, y: state.leader.y - h, w: 80, h };
 }
 
-export function obstacleRect(o) {
+// 총알은 o.x에 있는 일반 장애물과 같은 때 선두에 닿되 화면에서는 BULLET_SPEED만큼 더 빨리 다가옴
+const screenX = o => {
   const x = o.x - state.dist;
-  return o.type === 'jump'
-    ? { x, y: GROUND_Y - o.h, w: o.w, h: o.h }
-    : { x, y: o.top, w: o.w, h: o.bottom - o.top };
+  return o.type === 'bullet' ? LEADER_X + (x - LEADER_X) * (1 + BULLET_SPEED) : x;
+};
+// 총알이 화면 오른쪽 끝(W)에 들어오는 지점까지의 월드 거리 (screenX가 W가 되는 x - dist)
+const BULLET_ENTER_PX = LEADER_X + (W - LEADER_X) / (1 + BULLET_SPEED);
+
+export function obstacleRect(o) {
+  const x = screenX(o);
+  if (o.type === 'jump') return { x, y: GROUND_Y - o.h, w: o.w, h: o.h };
+  if (o.type === 'slide') return { x, y: o.top, w: o.w, h: o.bottom - o.top };
+  return { x, y: GROUND_Y - o.bottom - o.h, w: o.w, h: o.h };   // bullet
 }
 
 // 뒤 멤버: GAP*i 전의 선두 상태 재생
@@ -186,27 +194,72 @@ function endFever() {
 
 // ===== 장애물, 음표, 하트 =====
 function spawnObstacle() {
-  const low = Math.random() < 0.55;
-  const x = state.dist + W + 40;
-  const kinds = low ? OBSTACLES.jump : OBSTACLES.slide;
-  const { img, w, h, hitW = w } = kinds[Math.floor(Math.random() * kinds.length)];
-  const o = low   // w: 충돌 너비, drawW: 그림 너비
-    ? { type: 'jump', img, x, w: hitW, drawW: w, h, minGap: Infinity }
-    : { type: 'slide', img, x, w: hitW, drawW: w, top: 0, bottom: h, minGap: Infinity };
+  const r = Math.random();
+  const type = r < OBSTACLE_MIX.jump ? 'jump' : r < OBSTACLE_MIX.jump + OBSTACLE_MIX.slide ? 'slide' : 'bullet';
+  // 총알: 예고음 뒤 BULLET_WARN_S초 만에 화면에 들어오도록 멀리서 생성 (속도가 빨라도 예고 시간 유지)
+  const x = type === 'bullet'
+    ? state.dist + BULLET_ENTER_PX + speedNow() * BULLET_WARN_S
+    : state.dist + W + 40;
+  const kinds = OBSTACLES[type];
+  const { img, w, h, hitW = w, bottom } = kinds[Math.floor(Math.random() * kinds.length)];
+  const base = { type, img, x, w: hitW, drawW: w, minGap: Infinity };   // w: 충돌 너비, drawW: 그림 너비
+  const o = type === 'jump' ? { ...base, h }
+    : type === 'slide' ? { ...base, top: 0, bottom: h }
+    : { ...base, h, bottom, low: bottom < 70 };   // bullet: 낮으면 점프, 높으면 슬라이딩
   state.obstacles.push(o);
+  if (type === 'bullet') {
+    playSfx('bullet_warn') 
+    playSfx('bullet_fire')
+  } ;
 
   // 간격은 속도에 비례
   const gap = (speedNow() / SPEED) * (600 + Math.random() * 600);
   state.nextObstacleAt = state.dist + gap;
-  spawnNotes(o);
+  if (type !== 'bullet') spawnNotes(o);   // 총알은 위아래로 피해서 음표 없음
 
-  // 장애물 사이: 하트 부족 시 가끔 회복 하트, 아니면 음표 한 줄
+  // 다음 장애물이 생성될 간격까지 음표를 미리 배치해 화면에 자연스럽게 들어오게 함
+  const normalOffset = W + 40;
+  const bulletOffset = BULLET_ENTER_PX + speedNow() * BULLET_WARN_S;
+  const nextOffset = normalOffset * OBSTACLE_MIX.jump + normalOffset * OBSTACLE_MIX.slide
+    + bulletOffset * OBSTACLE_MIX.bullet;
+  const nextObstacleX = state.nextObstacleAt + nextOffset;
+  const span = nextObstacleX - o.x;
+  if (span > 450 && Math.random() < 0.7) {
+    const mid = (o.x + nextObstacleX) / 2;
+    spawnGapNotes(mid, span);
+  }
+
+  // 장애물 앞쪽: 하트 부족 시 가끔 회복 하트
   const mid = o.x + gap / 2;
   const heartWaiting = state.heartItems.some(h => !h.taken);
   if (state.hearts < MAX_HEARTS && !heartWaiting && Math.random() < HEART_CHANCE) {
     state.heartItems.push({ x: mid, y: GROUND_Y - HEART_Y, taken: false });
-  } else if (gap > 900 && Math.random() < 0.7) {
-    for (let k = -2; k <= 2; k++) state.notes.push({ x: mid + k * 50, y: GROUND_Y - 70, taken: false });
+  }
+}
+
+function spawnGapNotes(mid, span) {
+  const waveNotes = Math.random() < 0.5;
+  const smallWave = waveNotes && Math.random() < 0.45;
+  const cycles = waveNotes && !smallWave ? 1 + Math.floor(Math.random() * 3) : 1;
+  const targetWidth = waveNotes
+    ? smallWave ? Math.min(420, speedNow() * 0.6) : Math.min(900, speedNow() * 1.25)
+    : 200;
+  const width = Math.min(targetWidth, span - 120);
+  const count = waveNotes
+    ? Math.min(19, Math.max(smallWave ? 5 : 9, Math.round(width / 55) + 1, cycles * 4 + 1))
+    : 5;
+  const amplitude = smallWave ? 45 + Math.random() * 35 : 100 + Math.random() * 60;
+  const baseHeight = Math.random() < 0.4 ? 190 : 75;
+  const breakStart = Math.random() < 0.3 ? Math.floor(Math.random() * count) : -1;
+  const breakLength = 1 + Math.floor(Math.random() * 2);
+
+  for (let i = 0; i < count; i++) {
+    if (Math.random() < 0.06 || (breakStart >= 0 && i >= breakStart && i < breakStart + breakLength)) continue;
+    const t = i / (count - 1);
+    const wave = waveNotes ? (1 - Math.cos(2 * Math.PI * cycles * t)) / 2 : 0;
+    const height = waveNotes ? 75 + amplitude * wave : baseHeight;
+    const x = mid + (t - 0.5) * width;
+    state.notes.push({ x, y: GROUND_Y - height, taken: false });
   }
 }
 
@@ -243,6 +296,8 @@ function autoPilot(speed) {
   const gap = next.x - state.dist - front;
   if (next.type === 'jump' && gap < speed * 0.15) jump();
   if (next.type === 'slide' && gap < speed * 0.3) state.slideHeld = true;
+  if (next.type === 'bullet' && next.low && gap < speed * 0.15) jump();
+  if (next.type === 'bullet' && !next.low && gap < speed * 0.3) state.slideHeld = true;
 }
 
 // 충돌: 하트 1개 차감 후 잠깐 무적, 하트가 없으면 넘어짐 (계속 달리면 true)
@@ -345,7 +400,8 @@ export function update(dt) {
   for (const o of state.obstacles) {
     const r = obstacleRect(o);
     if (!(box.x < r.x + r.w && box.x + box.w > r.x)) continue;
-    const gapY = o.type === 'jump' ? r.y - (box.y + box.h) : box.y - (r.y + r.h);
+    const below = r.y - (box.y + box.h), above = box.y - (r.y + r.h);   // 장애물이 선두 아래, 위로 떨어진 거리
+    const gapY = o.type === 'jump' ? below : o.type === 'slide' ? above : Math.max(below, above);
     if (gapY < 0) {
       if (now < state.invincibleUntil || o.hit) continue;
       o.hit = true;
@@ -357,7 +413,7 @@ export function update(dt) {
 
   // 지나간 장애물: 회피 점수 (+ 아슬아슬 보너스)
   for (const o of state.obstacles) {
-    if (!o.scored && !o.hit && o.x - state.dist + o.w < LEADER_X - 40) {
+    if (!o.scored && !o.hit && screenX(o) + o.w < LEADER_X - 40) {
       o.scored = true;
       state.score += DODGE_SCORE * multiplier();
       if (o.minGap < NEAR_MISS_PX) {
@@ -366,7 +422,10 @@ export function update(dt) {
       }
     }
   }
-  state.obstacles = state.obstacles.filter(o => o.x - state.dist + o.drawW > 0);   // 그림이 화면 왼쪽으로 다 나가면
+  // for (const o of state.obstacles) {   // 총알이 화면에 들어오면 발사음
+  //   if (o.type === 'bullet' && !o.fired && screenX(o) < W) { o.fired = true; playSfx('bullet_fire'); }
+  // }
+  state.obstacles = state.obstacles.filter(o => screenX(o) + o.drawW > 0);   // 그림이 화면 왼쪽으로 다 나가면
 
   // 음표 먹기 (피버 중 배수)
   const noteMult = state.phase === 'fever' ? FEVER_NOTE_MULT : 1;

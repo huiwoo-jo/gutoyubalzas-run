@@ -2,8 +2,8 @@
 // 효과음은 Web Audio: 처음에 한 번 받아 디코딩, 지연 없이 재생하고 겹쳐도 끊기지 않음
 import { SFX_VOLUME, TITLE_BGM_VOLUME, TOUCH_BOOST, IS_TOUCH } from './config.js';
 
-const SFX = ['jump', 'slide', 'gameover', 'eat', 'eat_uwek', 'hit', 'gamestart', 'intro_crew', 'join_jinwoo', 'join_gito', 'join_beobyoung', 'join_donghun', 'join_jangdan'];
-const ONE_AT_A_TIME = new Set(['jump', 'slide', 'hit', 'gamestart', 'gameover']);   // 다시 나면 앞 소리 끊기
+const SFX = ['jump', 'slide', 'gameover', 'eat', 'eat_uwek', 'hit', 'gamestart', 'bullet_warn', 'bullet_fire', 'intro_crew', 'join_jinwoo', 'join_gito', 'join_beobyoung', 'join_donghun', 'join_jangdan'];
+const ONE_AT_A_TIME = new Set(['jump', 'slide', 'hit', 'gamestart', 'gameover', 'bullet_warn', 'bullet_fire']);   // 다시 나면 앞 소리 끊기
 
 const url = name => `assets/sounds/${name}.m4a`;
 // iOS: 게임 소리로 재생 (무음 모드, 낮은 음량 영향 줄이기, 지원하는 Safari만)
